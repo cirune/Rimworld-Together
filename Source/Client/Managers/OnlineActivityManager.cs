@@ -110,7 +110,7 @@ namespace GameClient
                 data._stepMode = OnlineActivityStepMode.Accept;
 
                 Map toGet = Find.WorldObjects.Settlements.First(fetch => fetch.Tile == data._toTile && fetch.Faction == Faction.OfPlayer).Map;
-                data._mapFile = MapScribeManager.MapToString(toGet, true, true, true, true, true, true);
+                data._mapFile = MapScriber.MapToString(toGet, true, true, true, true, true, true);
 
                 Packet packet = Packet.CreatePacketFromObject(nameof(OnlineActivityManager), data);
                 Network.listener.EnqueuePacket(packet);
@@ -169,15 +169,6 @@ namespace GameClient
             SessionValues.ToggleOnlineActivityReady(true);
             Threader.GenerateThread(Threader.Mode.Activity);
 
-            Logger.Warning($"My pawns > {factionPawns.Count}");
-            //foreach(Pawn pawn in OnlineActivityManagerHelper.factionPawns) Logger.Warning(pawn.def.defName);
-
-            Logger.Warning($"Other pawns > {nonFactionPawns.Count}");
-            //foreach(Pawn pawn in OnlineActivityManagerHelper.nonFactionPawns) Logger.Warning(pawn.def.defName);
-
-            Logger.Warning($"Map things > {activityMapThings.Count}");
-            //foreach(ThingDataFile thingData in OnlineActivityManagerHelper.activityMapThings) Logger.Warning(thingData.Hash);
-
             DialogManager.PopWaitDialog();
             Logger.Warning($"Started online activity of type > {SessionValues.currentRealTimeActivity}", LogImportanceMode.Verbose);
         }
@@ -225,6 +216,8 @@ namespace GameClient
     {
         public static void SetFactionPawnsForActivity()
         {
+            OnlineActivityManager.factionPawns.Clear();
+
             if (SessionValues.isActivityHost)
             {
                 foreach (Pawn pawn in OnlineActivityManager.activityMap.mapPawns.AllPawns.ToList())
@@ -244,19 +237,19 @@ namespace GameClient
 
         public static void SetNonFactionPawnsForActivity(OnlineActivityData data)
         {
+            OnlineActivityManager.nonFactionPawns.Clear();
+
             if (SessionValues.isActivityHost)
             {
-                OnlineActivityManager.nonFactionPawns.Clear();
-
                 foreach (HumanFile human in data._guestHumans)
                 {
-                    Pawn toSpawn = HumanScribeManager.StringToHuman(human);
+                    Pawn toSpawn = HumanScriber.StringToHuman(human, true);
                     OnlineActivityManager.nonFactionPawns.Add(toSpawn);
                 }
 
                 foreach (AnimalFile animal in data._guestAnimals)
                 {
-                    Pawn toSpawn = AnimalScribeManager.StringToAnimal(animal);
+                    Pawn toSpawn = AnimalScriber.StringToAnimal(animal, true);
                     OnlineActivityManager.nonFactionPawns.Add(toSpawn);
                 }
 
@@ -315,7 +308,7 @@ namespace GameClient
         public static void SetActivityMap(OnlineActivityData data)
         {
             if (SessionValues.isActivityHost) OnlineActivityManager.activityMap = Find.WorldObjects.Settlements.FirstOrDefault(fetch => fetch.Tile == data._toTile && fetch.Faction == Faction.OfPlayer).Map;
-            else OnlineActivityManager.activityMap = MapScribeManager.StringToMap(data._mapFile, true, true, true, true, true, true);
+            else OnlineActivityManager.activityMap = MapScriber.StringToMap(data._mapFile, true, true, true, true, true, true, false, true);
         }
 
         public static void SetActivityMapThings()
@@ -357,17 +350,17 @@ namespace GameClient
 
             if (SessionValues.isActivityHost)
             {
-                foreach (Pawn pawn in OnlineActivityManager.activityMap.mapPawns.AllPawns.Where(fetch => fetch.Faction == Faction.OfPlayer && DeepScribeHelper.CheckIfThingIsHuman(fetch)))
+                foreach (Pawn pawn in OnlineActivityManager.activityMap.mapPawns.AllPawns.Where(fetch => fetch.Faction == Faction.OfPlayer && ScribeHelper.CheckIfThingIsHuman(fetch)))
                 {
-                    toGet.Add(HumanScribeManager.HumanToString(pawn));
+                    toGet.Add(HumanScriber.HumanToString(pawn));
                 }
             }
 
             else
             {
-                foreach (Pawn pawn in SessionValues.chosenCaravan.PawnsListForReading.Where(fetch => DeepScribeHelper.CheckIfThingIsHuman(fetch)))
+                foreach (Pawn pawn in SessionValues.chosenCaravan.PawnsListForReading.Where(fetch => ScribeHelper.CheckIfThingIsHuman(fetch)))
                 {
-                    toGet.Add(HumanScribeManager.HumanToString(pawn));
+                    toGet.Add(HumanScriber.HumanToString(pawn));
                 }
             }
 
@@ -380,17 +373,17 @@ namespace GameClient
 
             if (SessionValues.isActivityHost)
             {
-                foreach (Pawn pawn in OnlineActivityManager.activityMap.mapPawns.AllPawns.Where(fetch => fetch.Faction == Faction.OfPlayer && DeepScribeHelper.CheckIfThingIsAnimal(fetch)))
+                foreach (Pawn pawn in OnlineActivityManager.activityMap.mapPawns.AllPawns.Where(fetch => fetch.Faction == Faction.OfPlayer && ScribeHelper.CheckIfThingIsAnimal(fetch)))
                 {
-                    toGet.Add(AnimalScribeManager.AnimalToString(pawn));
+                    toGet.Add(AnimalScriber.AnimalToString(pawn));
                 }
             }
 
             else
             {
-                foreach (Pawn pawn in SessionValues.chosenCaravan.PawnsListForReading.Where(fetch => fetch.Faction == Faction.OfPlayer && DeepScribeHelper.CheckIfThingIsAnimal(fetch)))
+                foreach (Pawn pawn in SessionValues.chosenCaravan.PawnsListForReading.Where(fetch => fetch.Faction == Faction.OfPlayer && ScribeHelper.CheckIfThingIsAnimal(fetch)))
                 {
-                    toGet.Add(AnimalScribeManager.AnimalToString(pawn));
+                    toGet.Add(AnimalScriber.AnimalToString(pawn));
                 }
             }
 
@@ -483,9 +476,6 @@ namespace GameClient
             pawnOrder._targetComponent.targetTypes = GetActionTypes(pawnJob);
             pawnOrder._targetComponent.targetFactions = GetActionTargetFactions(pawnJob);
 
-            if (pawnJob.targetQueueA != null) Logger.Warning($"Queue A > {pawnJob.targetQueueA.Count}");
-            if (pawnJob.targetQueueB != null) Logger.Warning($"Queue B > {pawnJob.targetQueueB.Count}");
-
             pawnOrder._isDrafted = GetPawnDraftState(pawn);
             pawnOrder._updatedPosition = ValueParser.IntVec3ToArray(pawn.Position);
             pawnOrder._updatedRotation = ValueParser.Rot4ToInt(pawn.Rotation);
@@ -531,8 +521,8 @@ namespace GameClient
                     if (target.Thing == null) targetTypeList.Add(ActionTargetType.Cell);
                     else
                     {
-                        if (DeepScribeHelper.CheckIfThingIsHuman(target.Thing)) targetTypeList.Add(ActionTargetType.Human);
-                        else if (DeepScribeHelper.CheckIfThingIsAnimal(target.Thing)) targetTypeList.Add(ActionTargetType.Animal);
+                        if (ScribeHelper.CheckIfThingIsHuman(target.Thing)) targetTypeList.Add(ActionTargetType.Human);
+                        else if (ScribeHelper.CheckIfThingIsAnimal(target.Thing)) targetTypeList.Add(ActionTargetType.Animal);
                         else targetTypeList.Add(ActionTargetType.Thing);
                     }
                 }
@@ -664,16 +654,16 @@ namespace GameClient
         {
             CreationOrderData creationOrder = new CreationOrderData();
 
-            if (DeepScribeHelper.CheckIfThingIsHuman(thing)) creationOrder._creationType = CreationType.Human;
-            else if (DeepScribeHelper.CheckIfThingIsAnimal(thing)) creationOrder._creationType = CreationType.Animal;
+            if (ScribeHelper.CheckIfThingIsHuman(thing)) creationOrder._creationType = CreationType.Human;
+            else if (ScribeHelper.CheckIfThingIsAnimal(thing)) creationOrder._creationType = CreationType.Animal;
             else creationOrder._creationType = CreationType.Thing;
 
             // Modify position based on center cell because RimWorld doesn't store it by default
             thing.Position = thing.OccupiedRect().CenterCell;
 
-            if (creationOrder._creationType == CreationType.Human) creationOrder._dataToCreate = Serializer.ConvertObjectToBytes(HumanScribeManager.HumanToString((Pawn)thing));
-            else if (creationOrder._creationType == CreationType.Animal) creationOrder._dataToCreate = Serializer.ConvertObjectToBytes(AnimalScribeManager.AnimalToString((Pawn)thing));
-            else if (creationOrder._creationType == CreationType.Thing) creationOrder._dataToCreate = Serializer.ConvertObjectToBytes(ThingScribeManager.ItemToString(thing, thing.stackCount));
+            if (creationOrder._creationType == CreationType.Human) creationOrder._dataToCreate = Serializer.ConvertObjectToBytes(HumanScriber.HumanToString((Pawn)thing));
+            else if (creationOrder._creationType == CreationType.Animal) creationOrder._dataToCreate = Serializer.ConvertObjectToBytes(AnimalScriber.AnimalToString((Pawn)thing));
+            else if (creationOrder._creationType == CreationType.Thing) creationOrder._dataToCreate = Serializer.ConvertObjectToBytes(ThingScriber.ThingToString(thing, thing.stackCount));
 
             return creationOrder;
         }
@@ -775,19 +765,19 @@ namespace GameClient
             {
                 case CreationType.Human:
                     HumanFile humanData = Serializer.ConvertBytesToObject<HumanFile>(data._creationOrder._dataToCreate);
-                    toCreate = HumanScribeManager.StringToHuman(humanData);
+                    toCreate = HumanScriber.StringToHuman(humanData, true);
                     toCreate.SetFaction(FactionValues.allyPlayer);
                     break;
 
                 case CreationType.Animal:
                     AnimalFile animalData = Serializer.ConvertBytesToObject<AnimalFile>(data._creationOrder._dataToCreate);
-                    toCreate = AnimalScribeManager.StringToAnimal(animalData);
+                    toCreate = AnimalScriber.StringToAnimal(animalData, true);
                     toCreate.SetFaction(FactionValues.allyPlayer);
                     break;
 
                 case CreationType.Thing:
                     ThingDataFile thingData = Serializer.ConvertBytesToObject<ThingDataFile>(data._creationOrder._dataToCreate);
-                    toCreate = ThingScribeManager.StringToItem(thingData);
+                    toCreate = ThingScriber.StringToThing(thingData, true);
                     break;
             }
 
