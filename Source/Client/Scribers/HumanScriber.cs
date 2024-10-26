@@ -66,7 +66,7 @@ namespace GameClient
             return humanData;
         }
 
-        public static Pawn StringToHuman(HumanFile humanData)
+        public static Pawn StringToHuman(HumanFile humanData, bool overrideID = false)
         {
             PawnKindDef kind = SetHumanKind(humanData);
 
@@ -74,7 +74,7 @@ namespace GameClient
 
             Pawn pawn = SetHuman(kind, faction, humanData);
 
-            SetHumanID(pawn, humanData);
+            if (overrideID) SetHumanID(pawn, humanData);
 
             SetHumanHediffs(pawn, humanData);
 

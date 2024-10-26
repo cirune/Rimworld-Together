@@ -250,13 +250,13 @@ namespace GameClient
 
                 foreach (HumanFile human in data._guestHumans)
                 {
-                    Pawn toSpawn = HumanScriber.StringToHuman(human);
+                    Pawn toSpawn = HumanScriber.StringToHuman(human, true);
                     OnlineActivityManager.nonFactionPawns.Add(toSpawn);
                 }
 
                 foreach (AnimalFile animal in data._guestAnimals)
                 {
-                    Pawn toSpawn = AnimalScriber.StringToAnimal(animal);
+                    Pawn toSpawn = AnimalScriber.StringToAnimal(animal, true);
                     OnlineActivityManager.nonFactionPawns.Add(toSpawn);
                 }
 
@@ -772,13 +772,13 @@ namespace GameClient
             {
                 case CreationType.Human:
                     HumanFile humanData = Serializer.ConvertBytesToObject<HumanFile>(data._creationOrder._dataToCreate);
-                    toCreate = HumanScriber.StringToHuman(humanData);
+                    toCreate = HumanScriber.StringToHuman(humanData, true);
                     toCreate.SetFaction(FactionValues.allyPlayer);
                     break;
 
                 case CreationType.Animal:
                     AnimalFile animalData = Serializer.ConvertBytesToObject<AnimalFile>(data._creationOrder._dataToCreate);
-                    toCreate = AnimalScriber.StringToAnimal(animalData);
+                    toCreate = AnimalScriber.StringToAnimal(animalData, true);
                     toCreate.SetFaction(FactionValues.allyPlayer);
                     break;
 

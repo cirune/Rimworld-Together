@@ -41,7 +41,7 @@ namespace GameClient
             return animalData;
         }
 
-        public static Pawn StringToAnimal(AnimalFile animalData)
+        public static Pawn StringToAnimal(AnimalFile animalData, bool overrideID = false)
         {
             PawnKindDef kind = SetAnimalKind(animalData);
 
@@ -49,7 +49,7 @@ namespace GameClient
 
             Pawn animal = SetAnimal(kind, faction, animalData);
 
-            SetAnimalID(animal, animalData);
+            if (overrideID) SetAnimalID(animal, animalData);
 
             SetAnimalBioDetails(animal, animalData);
 
