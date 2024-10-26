@@ -179,7 +179,7 @@ namespace GameClient
 
             Action r1 = delegate
             {
-                Pawn pawnToRetrieve = HumanScribeManager.StringToHuman(siteData._siteFile.WorkerData);
+                Pawn pawnToRetrieve = HumanScriber.StringToHuman(siteData._siteFile.WorkerData);
 
                 RimworldManager.PlaceThingIntoCaravan(pawnToRetrieve, SessionValues.chosenCaravan);
 
@@ -195,7 +195,7 @@ namespace GameClient
             List<string> pawnNames = new List<string>();
             foreach (Pawn pawn in pawns)
             {
-                if (DeepScribeHelper.CheckIfThingIsHuman(pawn)) pawnNames.Add(pawn.Label);
+                if (ScribeHelper.CheckIfThingIsHuman(pawn)) pawnNames.Add(pawn.Label);
             }
 
             RT_Dialog_ListingWithButton d1 = new RT_Dialog_ListingWithButton("Pawn Selection", "Select the pawn you wish to send", 
@@ -210,7 +210,7 @@ namespace GameClient
             List<Pawn> caravanHumans = new List<Pawn>();
             foreach (Pawn pawn in caravanPawns)
             {
-                if (DeepScribeHelper.CheckIfThingIsHuman(pawn)) caravanHumans.Add(pawn);
+                if (ScribeHelper.CheckIfThingIsHuman(pawn)) caravanHumans.Add(pawn);
             }
 
             Pawn pawnToSend = caravanHumans[DialogManager.dialogButtonListingResultInt];
@@ -219,7 +219,7 @@ namespace GameClient
             SiteData siteData = new SiteData();
             siteData._siteFile.Tile = SessionValues.chosenSite.Tile;
             siteData._stepMode = SiteStepMode.Deposit;
-            siteData._siteFile.WorkerData = HumanScribeManager.HumanToString(pawnToSend);
+            siteData._siteFile.WorkerData = HumanScriber.HumanToString(pawnToSend);
 
             Packet packet = Packet.CreatePacketFromObject(nameof(SiteManager), siteData);
             Network.listener.EnqueuePacket(packet);
@@ -288,7 +288,7 @@ namespace GameClient
                         thingData.Quality = 0;
                         thingData.Hitpoints = siteRewardDefNames[i].BaseMaxHitPoints;
 
-                        if (siteRewardCount[i] > 0) thingsToGet.Add(ThingScribeManager.StringToItem(thingData));
+                        if (siteRewardCount[i] > 0) thingsToGet.Add(ThingScriber.StringToItem(thingData));
 
                         break;
                     }

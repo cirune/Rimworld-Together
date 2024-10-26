@@ -379,25 +379,25 @@ namespace GameClient
 
         public static void AddThingToTransferManifest(Thing thing, int thingCount)
         {
-            if (DeepScribeHelper.CheckIfThingIsHuman(thing))
+            if (ScribeHelper.CheckIfThingIsHuman(thing))
             {
                 Pawn pawn = thing as Pawn;
 
-                SessionValues.outgoingManifest._humans.Add(HumanScribeManager.HumanToString(pawn, false));
+                SessionValues.outgoingManifest._humans.Add(HumanScriber.HumanToString(pawn, false));
 
                 RimworldManager.RemovePawnFromGame(pawn);
             }
 
-            else if (DeepScribeHelper.CheckIfThingIsAnimal(thing))
+            else if (ScribeHelper.CheckIfThingIsAnimal(thing))
             {
                 Pawn pawn = thing as Pawn;
 
-                SessionValues.outgoingManifest._animals.Add(AnimalScribeManager.AnimalToString(pawn));
+                SessionValues.outgoingManifest._animals.Add(AnimalScriber.AnimalToString(pawn));
 
                 RimworldManager.RemovePawnFromGame(pawn);
             }
 
-            else SessionValues.outgoingManifest._things.Add(ThingScribeManager.ItemToString(thing, thingCount));
+            else SessionValues.outgoingManifest._things.Add(ThingScriber.ItemToString(thing, thingCount));
         }
 
         //Gets the transfer location in the desired map
@@ -424,11 +424,11 @@ namespace GameClient
         {
             List<Thing> allTransferedItems = new List<Thing>();
 
-            foreach (Pawn pawn in HumanScribeManager.GetHumansFromString(transferData)) allTransferedItems.Add(pawn);
+            foreach (Pawn pawn in HumanScriber.GetHumansFromString(transferData)) allTransferedItems.Add(pawn);
 
-            foreach (Pawn animal in AnimalScribeManager.GetAnimalsFromString(transferData)) allTransferedItems.Add(animal);
+            foreach (Pawn animal in AnimalScriber.GetAnimalsFromString(transferData)) allTransferedItems.Add(animal);
 
-            foreach (Thing thing in ThingScribeManager.GetItemsFromString(transferData)) allTransferedItems.Add(thing);
+            foreach (Thing thing in ThingScriber.GetItemsFromString(transferData)) allTransferedItems.Add(thing);
 
             return allTransferedItems.ToArray();
         }

@@ -85,7 +85,7 @@ namespace GameClient
             DialogManager.PopWaitDialog();
             DialogManager.dialogMarketListing = null;
 
-            Thing toReceive = ThingScribeManager.StringToItem(marketData._transferThings[0]);
+            Thing toReceive = ThingScriber.StringToItem(marketData._transferThings[0]);
             TransferManager.GetTransferedItemsToSettlement(new Thing[] { toReceive }, customMap: false);
 
             int silverToPay = (int)(toReceive.MarketValue * toReceive.stackCount);

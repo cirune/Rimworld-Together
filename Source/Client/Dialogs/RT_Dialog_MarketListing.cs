@@ -51,7 +51,7 @@ namespace GameClient
             foreach (var element in elements)
             {
                 Thing thing = null;
-                try { thing = ThingScribeManager.StringToItem(element); } catch{ continue; }
+                try { thing = ThingScriber.StringToItem(element); } catch{ continue; }
                 if (thing != null)
                 {
                     things.Add(thing);

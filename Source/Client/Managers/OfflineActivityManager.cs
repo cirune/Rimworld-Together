@@ -138,17 +138,17 @@ namespace GameClient
 
             if (SessionValues.latestOfflineActivity == OfflineActivityType.Visit)
             {
-                map = MapScribeManager.StringToMap(mapFile, false, true, true, true, true, true);
+                map = MapScriber.StringToMap(mapFile, false, true, true, true, true, true);
             }
 
             else if (SessionValues.latestOfflineActivity == OfflineActivityType.Raid)
             {
-                map = MapScribeManager.StringToMap(mapFile, true, true, true, true, true, true, true);
+                map = MapScriber.StringToMap(mapFile, true, true, true, true, true, true, true);
             }
 
             else if (SessionValues.latestOfflineActivity == OfflineActivityType.Spy)
             {
-                map = MapScribeManager.StringToMap(mapFile, false, true, false, true, false, true);
+                map = MapScriber.StringToMap(mapFile, false, true, false, true, false, true);
             }
 
             HandleMapFactions(map);
