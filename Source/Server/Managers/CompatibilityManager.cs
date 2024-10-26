@@ -27,7 +27,6 @@ namespace GameServer
             try
             {
                 Assembly assembly = Assembly.LoadFrom(assemblyPath);
-                if (!TryLoadCommandsFromAssembly(assembly)) return null;
 
                 foreach (Type type in assembly.GetTypes())
                 {
@@ -53,28 +52,8 @@ namespace GameServer
 
             return null;
         }
-        
-        private static bool TryLoadCommandsFromAssembly(Assembly assembly)
-        {
-            try
-            {
-                Type type = assembly.GetType($"{assembly.GetName().Name}.CommandStorage");
-                if (type != null)
-                {
-                    FieldInfo field = type.GetField("serverCommands", BindingFlags.Static | BindingFlags.Public);
-                    CommandStorage.serverCommands.AddRange((List<ServerCommand>)field.GetValue(null));
-                }
-            }
-
-            catch 
-            { 
-                Logger.Error($"Failed to load commands from patch '{assembly.GetName().Name}'");
-                return false; 
-            }
-            
-            return true;
-        }
     }
+    
     public static class CompatibilityManagerHelper
     {
         public static readonly string fileExtension = ".dll";
