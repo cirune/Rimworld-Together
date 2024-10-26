@@ -20,7 +20,7 @@ namespace GameClient
             if (toLoad.Count > 0)
             {
                 Master.loadedCompatibilityPatches = toLoad.ToArray();
-                Logger.Warning($"Loaded > {Master.loadedCompatibilityPatches.Length} patches from '{Master.compatibilityPatchesPath}'");
+                Logger.Warning($"Loaded > {Master.loadedCompatibilityPatches.Length} patches");
                 Logger.Warning($"CAUTION > Custom patches aren't created by the mod developers, always use them with care");
             }
         }

@@ -26,8 +26,6 @@ namespace GameClient
 
         public static string modAssemblyPath;
 
-        public static string compatibilityPatchesPath;
-
         public static string connectionDataPath;
 
         public static string loginDataPath;
