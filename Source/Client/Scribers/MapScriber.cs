@@ -105,7 +105,7 @@ namespace GameClient
                 {
                     if (!ScribeHelper.CheckIfThingIsHuman(thing) && !ScribeHelper.CheckIfThingIsAnimal(thing))
                     {
-                        ThingDataFile thingData = ThingScriber.ItemToString(thing, thing.stackCount);
+                        ThingDataFile thingData = ThingScriber.ThingToString(thing, thing.stackCount);
 
                         if (thing.def.alwaysHaulable && factionThings) tempFactionThings.Add(thingData);
                         else if (!thing.def.alwaysHaulable && nonFactionThings) tempNonFactionThings.Add(thingData);
@@ -252,7 +252,7 @@ namespace GameClient
                     {
                         try
                         {
-                            Thing toGet = ThingScriber.StringToItem(item, overrideID);
+                            Thing toGet = ThingScriber.StringToThing(item, overrideID);
 
                             if (lessLoot)
                             {
@@ -277,7 +277,7 @@ namespace GameClient
                     {
                         try
                         {
-                            Thing toGet = ThingScriber.StringToItem(item, overrideID);
+                            Thing toGet = ThingScriber.StringToThing(item, overrideID);
                             thingsToGetInThisTile.Add(toGet);
 
                             if (ScribeHelper.CheckIfThingCanGrow(toGet))

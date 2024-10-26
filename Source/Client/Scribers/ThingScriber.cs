@@ -13,40 +13,40 @@ namespace GameClient
     {
         //Functions
 
-        public static Thing[] GetItemsFromString(TransferData transferData)
+        public static Thing[] GetThingsFromString(TransferData transferData)
         {
             List<Thing> things = new List<Thing>();
 
             for (int i = 0; i < transferData._things.Count(); i++)
             {
-                Thing thingToAdd = StringToItem(transferData._things[i]);
+                Thing thingToAdd = StringToThing(transferData._things[i]);
                 if (thingToAdd != null) things.Add(thingToAdd);
             }
 
             return things.ToArray();
         }
 
-        public static ThingDataFile ItemToString(Thing thing, int thingCount)
+        public static ThingDataFile ThingToString(Thing thing, int thingCount)
         {
             ThingDataFile thingData = new ThingDataFile();
 
             Thing toUse = null;
-            if (GetItemMinified(thing, thingData)) toUse = thing.GetInnerIfMinified();
+            if (GetThingMinified(thing, thingData)) toUse = thing.GetInnerIfMinified();
             else toUse = thing;
 
-            GetItemID(toUse, thingData);
+            GetThingID(toUse, thingData);
 
-            GetItemName(toUse, thingData);
+            GetThingName(toUse, thingData);
 
-            GetItemMaterial(toUse, thingData);
+            GetThingMaterial(toUse, thingData);
 
-            GetItemQuantity(toUse, thingData, thingCount);
+            GetThingQuantity(toUse, thingData, thingCount);
 
-            GetItemQuality(toUse, thingData);
+            GetThingQuality(toUse, thingData);
 
-            GetItemHitpoints(toUse, thingData);
+            GetThingHitpoints(toUse, thingData);
 
-            GetItemTransform(toUse, thingData);
+            GetThingTransform(toUse, thingData);
 
             if (ScribeHelper.CheckIfThingIsGenepack(toUse)) GetGenepackDetails(toUse, thingData);
             else if (ScribeHelper.CheckIfThingIsBook(toUse)) GetBookDetails(toUse, thingData);
@@ -58,19 +58,19 @@ namespace GameClient
             return thingData;
         }
 
-        public static Thing StringToItem(ThingDataFile thingData, bool overrideID = false)
+        public static Thing StringToThing(ThingDataFile thingData, bool overrideID = false)
         {
-            Thing thing = SetItem(thingData);
+            Thing thing = SetThing(thingData);
 
-            if (overrideID) SetItemID(thing, thingData);
+            if (overrideID) SetThingID(thing, thingData);
 
-            SetItemQuantity(thing, thingData);
+            SetThingQuantity(thing, thingData);
 
-            SetItemQuality(thing, thingData);
+            SetThingQuality(thing, thingData);
 
-            SetItemHitpoints(thing, thingData);
+            SetThingHitpoints(thing, thingData);
 
-            SetItemTransform(thing, thingData);
+            SetThingTransform(thing, thingData);
 
             if (ScribeHelper.CheckIfThingIsGenepack(thing)) SetGenepackDetails(thing, thingData);
             else if (ScribeHelper.CheckIfThingIsBook(thing)) SetBookDetails(thing, thingData);
@@ -84,19 +84,19 @@ namespace GameClient
 
         //Getters
 
-        private static void GetItemID(Thing thing, ThingDataFile thingData)
+        private static void GetThingID(Thing thing, ThingDataFile thingData)
         {
             try { thingData.ID = thing.ThingID; }
             catch (Exception e) { Logger.Warning(e.ToString(), CommonEnumerators.LogImportanceMode.Verbose); }
         }
 
-        private static void GetItemName(Thing thing, ThingDataFile thingData)
+        private static void GetThingName(Thing thing, ThingDataFile thingData)
         {
             try { thingData.DefName = thing.def.defName; }
             catch (Exception e) { Logger.Warning(e.ToString(), CommonEnumerators.LogImportanceMode.Verbose); }
         }
 
-        private static void GetItemMaterial(Thing thing, ThingDataFile thingData)
+        private static void GetThingMaterial(Thing thing, ThingDataFile thingData)
         {
             try
             {
@@ -106,25 +106,25 @@ namespace GameClient
             catch (Exception e) { Logger.Warning(e.ToString(), CommonEnumerators.LogImportanceMode.Verbose); }
         }
 
-        private static void GetItemQuantity(Thing thing, ThingDataFile thingData, int thingCount)
+        private static void GetThingQuantity(Thing thing, ThingDataFile thingData, int thingCount)
         {
             try { thingData.Quantity = thingCount; }
             catch (Exception e) { Logger.Warning(e.ToString(), CommonEnumerators.LogImportanceMode.Verbose); }
         }
 
-        private static void GetItemQuality(Thing thing, ThingDataFile thingData)
+        private static void GetThingQuality(Thing thing, ThingDataFile thingData)
         {
             try { thingData.Quality = ScribeHelper.GetThingQuality(thing); }
             catch (Exception e) { Logger.Warning(e.ToString(), CommonEnumerators.LogImportanceMode.Verbose); }
         }
 
-        private static void GetItemHitpoints(Thing thing, ThingDataFile thingData)
+        private static void GetThingHitpoints(Thing thing, ThingDataFile thingData)
         {
             try { thingData.Hitpoints = thing.HitPoints; }
             catch (Exception e) { Logger.Warning(e.ToString(), CommonEnumerators.LogImportanceMode.Verbose); }
         }
 
-        private static void GetItemTransform(Thing thing, ThingDataFile thingData)
+        private static void GetThingTransform(Thing thing, ThingDataFile thingData)
         {
             try
             {
@@ -155,7 +155,7 @@ namespace GameClient
             catch (Exception e) { Logger.Warning(e.ToString(), CommonEnumerators.LogImportanceMode.Verbose); }
         }
 
-        private static bool GetItemMinified(Thing thing, ThingDataFile thingData)
+        private static bool GetThingMinified(Thing thing, ThingDataFile thingData)
         {
             try
             {
@@ -260,7 +260,7 @@ namespace GameClient
         }
         //Setters
 
-        private static Thing SetItem(ThingDataFile thingData)
+        private static Thing SetThing(ThingDataFile thingData)
         {
             try
             {
@@ -273,19 +273,19 @@ namespace GameClient
             throw new IndexOutOfRangeException(thingData.ToString());
         }
 
-        private static void SetItemID(Thing thing, ThingDataFile thingData)
+        private static void SetThingID(Thing thing, ThingDataFile thingData)
         {
             try { thing.ThingID = thingData.ID; }
             catch (Exception e) { Logger.Warning(e.ToString(), CommonEnumerators.LogImportanceMode.Verbose); }    
         }
 
-        private static void SetItemQuantity(Thing thing, ThingDataFile thingData)
+        private static void SetThingQuantity(Thing thing, ThingDataFile thingData)
         {
             try { thing.stackCount = thingData.Quantity; }
             catch (Exception e) { Logger.Warning(e.ToString(), CommonEnumerators.LogImportanceMode.Verbose); }
         }
 
-        private static void SetItemQuality(Thing thing, ThingDataFile thingData)
+        private static void SetThingQuality(Thing thing, ThingDataFile thingData)
         {
             if (thingData.Quality != -1)
             {
@@ -302,13 +302,13 @@ namespace GameClient
             }
         }
 
-        private static void SetItemHitpoints(Thing thing, ThingDataFile thingData)
+        private static void SetThingHitpoints(Thing thing, ThingDataFile thingData)
         {
             try { thing.HitPoints = thingData.Hitpoints; }
             catch (Exception e) { Logger.Warning(e.ToString(), CommonEnumerators.LogImportanceMode.Verbose); }
         }
 
-        private static void SetItemTransform(Thing thing, ThingDataFile thingData)
+        private static void SetThingTransform(Thing thing, ThingDataFile thingData)
         {
             try
             { 

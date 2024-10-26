@@ -363,7 +363,7 @@ namespace GameClient
                 {
                     try
                     {
-                        ThingDataFile thingData = ThingScriber.ItemToString(ap, 1);
+                        ThingDataFile thingData = ThingScriber.ThingToString(ap, 1);
                         ApparelComponent component = new ApparelComponent();
                         component.EquippedApparel = thingData;
                         component.WornByCorpse = ap.WornByCorpse;
@@ -384,7 +384,7 @@ namespace GameClient
                 try
                 {
                     ThingWithComps weapon = pawn.equipment.Primary;
-                    ThingDataFile thingData = ThingScriber.ItemToString(weapon, weapon.stackCount);
+                    ThingDataFile thingData = ThingScriber.ThingToString(weapon, weapon.stackCount);
                     humanData.Weapon = thingData;
                 }
                 catch (Exception e) { Logger.Warning(e.ToString(), CommonEnumerators.LogImportanceMode.Verbose); }
@@ -401,7 +401,7 @@ namespace GameClient
                 {
                     try
                     {
-                        ThingDataFile thingData = ThingScriber.ItemToString(thing, thing.stackCount);
+                        ThingDataFile thingData = ThingScriber.ThingToString(thing, thing.stackCount);
                         ItemComponent component = new ItemComponent();
                         component.Item = thingData;
 
@@ -717,7 +717,7 @@ namespace GameClient
                     try
                     {
                         ApparelComponent component = humanData.Apparel[i];
-                        Apparel apparel = (Apparel)ThingScriber.StringToItem(component.EquippedApparel);
+                        Apparel apparel = (Apparel)ThingScriber.StringToThing(component.EquippedApparel);
                         if (component.WornByCorpse) apparel.WornByCorpse.MustBeTrue();
                         else apparel.WornByCorpse.MustBeFalse();
 
@@ -737,7 +737,7 @@ namespace GameClient
             {
                 try
                 {
-                    ThingWithComps thing = (ThingWithComps)ThingScriber.StringToItem(humanData.Weapon);
+                    ThingWithComps thing = (ThingWithComps)ThingScriber.StringToThing(humanData.Weapon);
                     pawn.equipment.AddEquipment(thing);
                 }
                 catch (Exception e) { Logger.Warning(e.ToString(), CommonEnumerators.LogImportanceMode.Verbose); }
@@ -753,7 +753,7 @@ namespace GameClient
                     try
                     {
                         ItemComponent component = humanData.Items[i];
-                        Thing thing = ThingScriber.StringToItem(component.Item);
+                        Thing thing = ThingScriber.StringToThing(component.Item);
                         pawn.inventory.TryAddAndUnforbid(thing);
                     }
                     catch (Exception e) { Logger.Warning(e.ToString(), CommonEnumerators.LogImportanceMode.Verbose); }

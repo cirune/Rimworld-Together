@@ -397,7 +397,7 @@ namespace GameClient
                 RimworldManager.RemovePawnFromGame(pawn);
             }
 
-            else SessionValues.outgoingManifest._things.Add(ThingScriber.ItemToString(thing, thingCount));
+            else SessionValues.outgoingManifest._things.Add(ThingScriber.ThingToString(thing, thingCount));
         }
 
         //Gets the transfer location in the desired map
@@ -428,7 +428,7 @@ namespace GameClient
 
             foreach (Pawn animal in AnimalScriber.GetAnimalsFromString(transferData)) allTransferedItems.Add(animal);
 
-            foreach (Thing thing in ThingScriber.GetItemsFromString(transferData)) allTransferedItems.Add(thing);
+            foreach (Thing thing in ThingScriber.GetThingsFromString(transferData)) allTransferedItems.Add(thing);
 
             return allTransferedItems.ToArray();
         }

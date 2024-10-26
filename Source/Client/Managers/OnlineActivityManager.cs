@@ -670,7 +670,7 @@ namespace GameClient
 
             if (creationOrder._creationType == CreationType.Human) creationOrder._dataToCreate = Serializer.ConvertObjectToBytes(HumanScriber.HumanToString((Pawn)thing));
             else if (creationOrder._creationType == CreationType.Animal) creationOrder._dataToCreate = Serializer.ConvertObjectToBytes(AnimalScriber.AnimalToString((Pawn)thing));
-            else if (creationOrder._creationType == CreationType.Thing) creationOrder._dataToCreate = Serializer.ConvertObjectToBytes(ThingScriber.ItemToString(thing, thing.stackCount));
+            else if (creationOrder._creationType == CreationType.Thing) creationOrder._dataToCreate = Serializer.ConvertObjectToBytes(ThingScriber.ThingToString(thing, thing.stackCount));
 
             return creationOrder;
         }
@@ -784,7 +784,7 @@ namespace GameClient
 
                 case CreationType.Thing:
                     ThingDataFile thingData = Serializer.ConvertBytesToObject<ThingDataFile>(data._creationOrder._dataToCreate);
-                    toCreate = ThingScriber.StringToItem(thingData, true);
+                    toCreate = ThingScriber.StringToThing(thingData, true);
                     break;
             }
 

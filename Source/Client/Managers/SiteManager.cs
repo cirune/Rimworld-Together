@@ -288,7 +288,7 @@ namespace GameClient
                         thingData.Quality = 0;
                         thingData.Hitpoints = siteRewardDefNames[i].BaseMaxHitPoints;
 
-                        if (siteRewardCount[i] > 0) thingsToGet.Add(ThingScriber.StringToItem(thingData));
+                        if (siteRewardCount[i] > 0) thingsToGet.Add(ThingScriber.StringToThing(thingData));
 
                         break;
                     }
