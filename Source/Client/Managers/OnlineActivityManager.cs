@@ -169,15 +169,6 @@ namespace GameClient
             SessionValues.ToggleOnlineActivityReady(true);
             Threader.GenerateThread(Threader.Mode.Activity);
 
-            Logger.Warning($"My pawns > {factionPawns.Count}");
-            //foreach(Pawn pawn in OnlineActivityManagerHelper.factionPawns) Logger.Warning(pawn.def.defName);
-
-            Logger.Warning($"Other pawns > {nonFactionPawns.Count}");
-            //foreach(Pawn pawn in OnlineActivityManagerHelper.nonFactionPawns) Logger.Warning(pawn.def.defName);
-
-            Logger.Warning($"Map things > {activityMapThings.Count}");
-            //foreach(ThingDataFile thingData in OnlineActivityManagerHelper.activityMapThings) Logger.Warning(thingData.Hash);
-
             DialogManager.PopWaitDialog();
             Logger.Warning($"Started online activity of type > {SessionValues.currentRealTimeActivity}", LogImportanceMode.Verbose);
         }
@@ -225,6 +216,8 @@ namespace GameClient
     {
         public static void SetFactionPawnsForActivity()
         {
+            OnlineActivityManager.factionPawns.Clear();
+
             if (SessionValues.isActivityHost)
             {
                 foreach (Pawn pawn in OnlineActivityManager.activityMap.mapPawns.AllPawns.ToList())
@@ -244,10 +237,10 @@ namespace GameClient
 
         public static void SetNonFactionPawnsForActivity(OnlineActivityData data)
         {
+            OnlineActivityManager.nonFactionPawns.Clear();
+
             if (SessionValues.isActivityHost)
             {
-                OnlineActivityManager.nonFactionPawns.Clear();
-
                 foreach (HumanFile human in data._guestHumans)
                 {
                     Pawn toSpawn = HumanScriber.StringToHuman(human, true);
