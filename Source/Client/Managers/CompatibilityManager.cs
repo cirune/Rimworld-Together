@@ -45,9 +45,9 @@ namespace GameClient
                                 System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(type.TypeHandle);
                                 return assembly;
                             }
-                            else Logger.Error($"Mod {assembly.GetName().Name} has class {type.Name} with attribute 'RTStartup' but no constructor.");
+                            else Logger.Error($"Mod {MethodManager.GetAssemblyName(assembly)} has class {type.Name} with attribute 'RTStartup' but no constructor.");
                         }
-                        else Logger.Error($"Mod {assembly.GetName().Name} has class {type.Name} with attribute 'RTStartup' but isn't static.");
+                        else Logger.Error($"Mod {MethodManager.GetAssemblyName(assembly)} has class {type.Name} with attribute 'RTStartup' but isn't static.");
                     } 
                 }
             }
