@@ -182,14 +182,14 @@ namespace GameClient
         private static void OnActivityUnavailable()
         {
             DialogManager.PopWaitDialog();
-            DialogManager.PushNewDialog(new RT_Dialog_Error($"This user is currently unavailable! {SessionValues.isActivityHost}"));
+            DialogManager.PushNewDialog(new RT_Dialog_Error($"This user is currently unavailable!"));
         }
 
         private static void OnActivityStop()
         {
             CleanActivity();
             DialogManager.PopWaitDialog();
-            DialogManager.PushNewDialog(new RT_Dialog_Error($"Activity has ended! {SessionValues.isActivityHost}"));
+            DialogManager.PushNewDialog(new RT_Dialog_Error($"Activity has ended!"));
         }
 
         private static void CleanActivity()
