@@ -33,5 +33,7 @@ namespace GameClient
         public static string clientPreferencesPath;
 
         public static string savesFolderPath;
+        
+        public static string scribeFolderPath;
     }
 }
