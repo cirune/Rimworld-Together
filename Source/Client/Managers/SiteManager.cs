@@ -179,7 +179,7 @@ namespace GameClient
 
             Action r1 = delegate
             {
-                Pawn pawnToRetrieve = HumanScriber.StringToHuman(siteData._siteFile.WorkerData);
+                Pawn pawnToRetrieve = HumanScriber.FromString(siteData._siteFile.WorkerData);
 
                 RimworldManager.PlaceThingIntoCaravan(pawnToRetrieve, SessionValues.chosenCaravan);
 
@@ -219,7 +219,7 @@ namespace GameClient
             SiteData siteData = new SiteData();
             siteData._siteFile.Tile = SessionValues.chosenSite.Tile;
             siteData._stepMode = SiteStepMode.Deposit;
-            siteData._siteFile.WorkerData = HumanScriber.HumanToString(pawnToSend);
+            siteData._siteFile.WorkerData = HumanScriber.ToString(pawnToSend);
 
             Packet packet = Packet.CreatePacketFromObject(nameof(SiteManager), siteData);
             Network.listener.EnqueuePacket(packet);
@@ -282,13 +282,13 @@ namespace GameClient
                 {
                     if (site.MainSitePartDef == siteDefs[i])
                     {
-                        ThingDataFile thingData = new ThingDataFile();
-                        thingData.DefName = siteRewardDefNames[i].defName;
-                        thingData.Quantity = siteRewardCount[i];
-                        thingData.Quality = 0;
-                        thingData.Hitpoints = siteRewardDefNames[i].BaseMaxHitPoints;
-
-                        if (siteRewardCount[i] > 0) thingsToGet.Add(ThingScriber.StringToThing(thingData));
+                        //FIXME
+                        // ThingDataFile thingData = new ThingDataFile();
+                        // thingData.DefName = siteRewardDefNames[i].defName;
+                        // thingData.Quantity = siteRewardCount[i];
+                        // thingData.Quality = 0;
+                        // thingData.Hitpoints = siteRewardDefNames[i].BaseMaxHitPoints;
+                        // if (siteRewardCount[i] > 0) thingsToGet.Add(ThingScriber.StringToThing(thingData));
 
                         break;
                     }

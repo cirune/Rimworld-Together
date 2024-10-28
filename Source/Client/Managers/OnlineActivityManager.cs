@@ -243,13 +243,13 @@ namespace GameClient
             {
                 foreach (HumanFile human in data._guestHumans)
                 {
-                    Pawn toSpawn = HumanScriber.StringToHuman(human, true);
+                    Pawn toSpawn = HumanScriber.FromString(human, true);
                     OnlineActivityManager.nonFactionPawns.Add(toSpawn);
                 }
 
                 foreach (AnimalFile animal in data._guestAnimals)
                 {
-                    Pawn toSpawn = AnimalScriber.StringToAnimal(animal, true);
+                    Pawn toSpawn = AnimalScriber.FromString(animal, true);
                     OnlineActivityManager.nonFactionPawns.Add(toSpawn);
                 }
 
@@ -352,7 +352,7 @@ namespace GameClient
             {
                 foreach (Pawn pawn in OnlineActivityManager.activityMap.mapPawns.AllPawns.Where(fetch => fetch.Faction == Faction.OfPlayer && ScribeHelper.CheckIfThingIsHuman(fetch)))
                 {
-                    toGet.Add(HumanScriber.HumanToString(pawn));
+                    toGet.Add(HumanScriber.ToString(pawn));
                 }
             }
 
@@ -360,7 +360,7 @@ namespace GameClient
             {
                 foreach (Pawn pawn in SessionValues.chosenCaravan.PawnsListForReading.Where(fetch => ScribeHelper.CheckIfThingIsHuman(fetch)))
                 {
-                    toGet.Add(HumanScriber.HumanToString(pawn));
+                    toGet.Add(HumanScriber.ToString(pawn));
                 }
             }
 
@@ -375,7 +375,7 @@ namespace GameClient
             {
                 foreach (Pawn pawn in OnlineActivityManager.activityMap.mapPawns.AllPawns.Where(fetch => fetch.Faction == Faction.OfPlayer && ScribeHelper.CheckIfThingIsAnimal(fetch)))
                 {
-                    toGet.Add(AnimalScriber.AnimalToString(pawn));
+                    toGet.Add(AnimalScriber.ToString(pawn));
                 }
             }
 
@@ -383,7 +383,7 @@ namespace GameClient
             {
                 foreach (Pawn pawn in SessionValues.chosenCaravan.PawnsListForReading.Where(fetch => fetch.Faction == Faction.OfPlayer && ScribeHelper.CheckIfThingIsAnimal(fetch)))
                 {
-                    toGet.Add(AnimalScriber.AnimalToString(pawn));
+                    toGet.Add(AnimalScriber.ToString(pawn));
                 }
             }
 
@@ -661,9 +661,9 @@ namespace GameClient
             // Modify position based on center cell because RimWorld doesn't store it by default
             thing.Position = thing.OccupiedRect().CenterCell;
 
-            if (creationOrder._creationType == CreationType.Human) creationOrder._dataToCreate = Serializer.ConvertObjectToBytes(HumanScriber.HumanToString((Pawn)thing));
-            else if (creationOrder._creationType == CreationType.Animal) creationOrder._dataToCreate = Serializer.ConvertObjectToBytes(AnimalScriber.AnimalToString((Pawn)thing));
-            else if (creationOrder._creationType == CreationType.Thing) creationOrder._dataToCreate = Serializer.ConvertObjectToBytes(ThingScriber.ThingToString(thing, thing.stackCount));
+            if (creationOrder._creationType == CreationType.Human) creationOrder._dataToCreate = Serializer.ConvertObjectToBytes(HumanScriber.ToString((Pawn)thing));
+            else if (creationOrder._creationType == CreationType.Animal) creationOrder._dataToCreate = Serializer.ConvertObjectToBytes(AnimalScriber.ToString((Pawn)thing));
+            else if (creationOrder._creationType == CreationType.Thing) creationOrder._dataToCreate = Serializer.ConvertObjectToBytes(ThingScriber.ToString(thing, thing.stackCount));
 
             return creationOrder;
         }
@@ -765,19 +765,19 @@ namespace GameClient
             {
                 case CreationType.Human:
                     HumanFile humanData = Serializer.ConvertBytesToObject<HumanFile>(data._creationOrder._dataToCreate);
-                    toCreate = HumanScriber.StringToHuman(humanData, true);
+                    toCreate = HumanScriber.FromString(humanData, true);
                     toCreate.SetFaction(FactionValues.allyPlayer);
                     break;
 
                 case CreationType.Animal:
                     AnimalFile animalData = Serializer.ConvertBytesToObject<AnimalFile>(data._creationOrder._dataToCreate);
-                    toCreate = AnimalScriber.StringToAnimal(animalData, true);
+                    toCreate = AnimalScriber.FromString(animalData, true);
                     toCreate.SetFaction(FactionValues.allyPlayer);
                     break;
 
                 case CreationType.Thing:
-                    ThingDataFile thingData = Serializer.ConvertBytesToObject<ThingDataFile>(data._creationOrder._dataToCreate);
-                    toCreate = ThingScriber.StringToThing(thingData, true);
+                    ThingFile thingData = Serializer.ConvertBytesToObject<ThingFile>(data._creationOrder._dataToCreate);
+                    toCreate = ThingScriber.FromString(thingData, true);
                     break;
             }
 

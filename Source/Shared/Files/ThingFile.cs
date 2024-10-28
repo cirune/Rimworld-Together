@@ -1,11 +1,10 @@
 using System;
-using System.Collections.Generic;
 
 namespace Shared
 {
     [Serializable]
 
-    public class HumanFile
+    public class ThingFile
     {
         public string ID;
 

@@ -383,7 +383,7 @@ namespace GameClient
             {
                 Pawn pawn = thing as Pawn;
 
-                SessionValues.outgoingManifest._humans.Add(HumanScriber.HumanToString(pawn, false));
+                SessionValues.outgoingManifest._humans.Add(HumanScriber.ToString(pawn));
 
                 RimworldManager.RemovePawnFromGame(pawn);
             }
@@ -392,12 +392,12 @@ namespace GameClient
             {
                 Pawn pawn = thing as Pawn;
 
-                SessionValues.outgoingManifest._animals.Add(AnimalScriber.AnimalToString(pawn));
+                SessionValues.outgoingManifest._animals.Add(AnimalScriber.ToString(pawn));
 
                 RimworldManager.RemovePawnFromGame(pawn);
             }
 
-            else SessionValues.outgoingManifest._things.Add(ThingScriber.ThingToString(thing, thingCount));
+            else SessionValues.outgoingManifest._things.Add(ThingScriber.ToString(thing, thingCount));
         }
 
         //Gets the transfer location in the desired map
@@ -424,11 +424,20 @@ namespace GameClient
         {
             List<Thing> allTransferedItems = new List<Thing>();
 
-            foreach (Pawn pawn in HumanScriber.GetHumansFromString(transferData)) allTransferedItems.Add(pawn);
+            foreach (HumanFile file in transferData._humans)
+            {
+                allTransferedItems.Add(HumanScriber.FromString(file));
+            }
 
-            foreach (Pawn animal in AnimalScriber.GetAnimalsFromString(transferData)) allTransferedItems.Add(animal);
+            foreach (AnimalFile file in transferData._animals)
+            {
+                allTransferedItems.Add(AnimalScriber.FromString(file));
+            }
 
-            foreach (Thing thing in ThingScriber.GetThingsFromString(transferData)) allTransferedItems.Add(thing);
+            foreach (ThingFile file in transferData._things)
+            {
+                allTransferedItems.Add(ThingScriber.FromString(file));
+            }
 
             return allTransferedItems.ToArray();
         }

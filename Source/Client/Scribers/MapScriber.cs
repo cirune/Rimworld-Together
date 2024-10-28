@@ -98,27 +98,17 @@ namespace GameClient
         {
             try 
             {
-                List<ThingDataFile> tempFactionThings = new List<ThingDataFile>();
-                List<ThingDataFile> tempNonFactionThings = new List<ThingDataFile>();
+                List<ThingFile> tempFactionThings = new List<ThingFile>();
+                List<ThingFile> tempNonFactionThings = new List<ThingFile>();
 
                 foreach (Thing thing in map.listerThings.AllThings)
                 {
                     if (!ScribeHelper.CheckIfThingIsHuman(thing) && !ScribeHelper.CheckIfThingIsAnimal(thing))
                     {
-                        ThingDataFile thingData = ThingScriber.ThingToString(thing, thing.stackCount);
+                        ThingFile thingData = ThingScriber.ToString(thing, thing.stackCount);
 
                         if (thing.def.alwaysHaulable && factionThings) tempFactionThings.Add(thingData);
                         else if (!thing.def.alwaysHaulable && nonFactionThings) tempNonFactionThings.Add(thingData);
-
-                        if (ScribeHelper.CheckIfThingCanGrow(thing))
-                        {
-                            try
-                            {
-                                Plant plant = thing as Plant;
-                                thingData.PlantComponent.GrowthTicks = plant.Growth;
-                            }
-                            catch (Exception e) { Logger.Warning(e.ToString(), CommonEnumerators.LogImportanceMode.Verbose); }
-                        }
                     }
                 }
 
@@ -139,7 +129,7 @@ namespace GameClient
                 {
                     if (ScribeHelper.CheckIfThingIsHuman(thing))
                     {
-                        HumanFile humanData = HumanScriber.HumanToString(thing as Pawn);
+                        HumanFile humanData = HumanScriber.ToString(thing as Pawn);
 
                         if (thing.Faction == Faction.OfPlayer && factionHumans) tempFactionHumans.Add(humanData);
                         else if (thing.Faction != Faction.OfPlayer && nonFactionHumans) tempNonFactionHumans.Add(humanData);
@@ -163,7 +153,7 @@ namespace GameClient
                 {
                     if (ScribeHelper.CheckIfThingIsAnimal(thing))
                     {
-                        AnimalFile animalData = AnimalScriber.AnimalToString(thing as Pawn);
+                        AnimalFile animalData = AnimalScriber.ToString(thing as Pawn);
 
                         if (thing.Faction == Faction.OfPlayer && factionAnimals) tempFactionAnimals.Add(animalData);
                         else if (thing.Faction != Faction.OfPlayer && nonFactionAnimals) tempNonFactionAnimals.Add(animalData);
@@ -248,11 +238,11 @@ namespace GameClient
                 {
                     Random rnd = new Random();
 
-                    foreach (ThingDataFile item in mapFile.FactionThings)
+                    foreach (ThingFile item in mapFile.FactionThings)
                     {
                         try
                         {
-                            Thing toGet = ThingScriber.StringToThing(item, overrideID);
+                            Thing toGet = ThingScriber.FromString(item, overrideID);
 
                             if (lessLoot)
                             {
@@ -260,12 +250,6 @@ namespace GameClient
                                 else continue;
                             }
                             else thingsToGetInThisTile.Add(toGet);
-
-                            if (ScribeHelper.CheckIfThingCanGrow(toGet))
-                            {
-                                Plant plant = toGet as Plant;
-                                plant.Growth = item.PlantComponent.GrowthTicks;
-                            }
                         }
                         catch (Exception e) { Logger.Warning(e.ToString(), CommonEnumerators.LogImportanceMode.Verbose); }
                     }
@@ -273,18 +257,12 @@ namespace GameClient
 
                 if (nonFactionThings)
                 {
-                    foreach (ThingDataFile item in mapFile.NonFactionThings)
+                    foreach (ThingFile item in mapFile.NonFactionThings)
                     {
                         try
                         {
-                            Thing toGet = ThingScriber.StringToThing(item, overrideID);
+                            Thing toGet = ThingScriber.FromString(item, overrideID);
                             thingsToGetInThisTile.Add(toGet);
-
-                            if (ScribeHelper.CheckIfThingCanGrow(toGet))
-                            {
-                                Plant plant = toGet as Plant;
-                                plant.Growth = item.PlantComponent.GrowthTicks;
-                            }
                         }
                         catch (Exception e) { Logger.Warning(e.ToString(), CommonEnumerators.LogImportanceMode.Verbose); }
                     }
@@ -292,7 +270,11 @@ namespace GameClient
 
                 foreach (Thing thing in thingsToGetInThisTile)
                 {
-                    try { GenPlace.TryPlaceThing(thing, thing.Position, map, ThingPlaceMode.Direct, rot: thing.Rotation); }
+                    try 
+                    {
+                        if (thing.def.CanHaveFaction) thing.SetFaction(FactionValues.neutralPlayer);
+                        GenPlace.TryPlaceThing(thing, thing.Position, map, ThingPlaceMode.Direct, rot: thing.Rotation); 
+                    }
                     catch (Exception e) { Logger.Warning(e.ToString(), CommonEnumerators.LogImportanceMode.Verbose); }
                 }
             }
@@ -309,7 +291,7 @@ namespace GameClient
                     {
                         try
                         {
-                            Pawn human = HumanScriber.StringToHuman(pawn, overrideID);
+                            Pawn human = HumanScriber.FromString(pawn, overrideID);
                             human.SetFaction(FactionValues.neutralPlayer);
 
                             GenSpawn.Spawn(human, human.Position, map, human.Rotation);
@@ -324,7 +306,7 @@ namespace GameClient
                     {
                         try
                         {
-                            Pawn human = HumanScriber.StringToHuman(pawn, overrideID);
+                            Pawn human = HumanScriber.FromString(pawn, overrideID);
                             GenSpawn.Spawn(human, human.Position, map, human.Rotation);
                         }
                         catch (Exception e) { Logger.Warning(e.ToString(), CommonEnumerators.LogImportanceMode.Verbose); }
@@ -344,7 +326,7 @@ namespace GameClient
                     {
                         try
                         {
-                            Pawn animal = AnimalScriber.StringToAnimal(pawn, overrideID);
+                            Pawn animal = AnimalScriber.FromString(pawn, overrideID);
                             animal.SetFaction(FactionValues.neutralPlayer);
 
                             GenSpawn.Spawn(animal, animal.Position, map, animal.Rotation);
@@ -359,7 +341,7 @@ namespace GameClient
                     {
                         try
                         {
-                            Pawn animal = AnimalScriber.StringToAnimal(pawn, overrideID);
+                            Pawn animal = AnimalScriber.FromString(pawn, overrideID);
                             GenSpawn.Spawn(animal, animal.Position, map, animal.Rotation);
                         }
                         catch (Exception e) { Logger.Warning(e.ToString(), CommonEnumerators.LogImportanceMode.Verbose); }

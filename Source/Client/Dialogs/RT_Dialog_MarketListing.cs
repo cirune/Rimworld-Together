@@ -41,7 +41,7 @@ namespace GameClient
 
         private readonly Map settlementMap;
 
-        public RT_Dialog_MarketListing(ThingDataFile[] elements, Map settlementMap, Action actionClick = null, Action actionCancel = null)
+        public RT_Dialog_MarketListing(ThingFile[] elements, Map settlementMap, Action actionClick = null, Action actionCancel = null)
         {
             DialogManager.dialogMarketListing = this;
 
@@ -51,7 +51,7 @@ namespace GameClient
             foreach (var element in elements)
             {
                 Thing thing = null;
-                try { thing = ThingScriber.StringToThing(element); } catch{ continue; }
+                try { thing = ThingScriber.FromString(element); } catch{ continue; }
                 if (thing != null)
                 {
                     things.Add(thing);

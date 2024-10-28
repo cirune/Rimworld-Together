@@ -9,11 +9,16 @@ namespace GameClient
 
         private static readonly string scribeNodeName = "Node";
 
-        public static string ThingToScribe(Thing toSave)
+        public static string ThingToScribe(Thing toSave, int customCount = -1)
         {
+            int originalCount = toSave.stackCount;
+            if (customCount != -1) toSave.stackCount = customCount;
+
             Scribe.saver.InitSaving(Path.Combine(Master.scribeFolderPath, "LatestSentScribe.xml"), scribeTreeName);
             Scribe_Deep.Look(ref toSave, scribeNodeName);
             Scribe.saver.FinalizeSaving();
+
+            if (customCount != -1) toSave.stackCount = originalCount;
             
             return File.ReadAllText(Path.Combine(Master.scribeFolderPath, "LatestSentScribe.xml"));
         }
