@@ -210,7 +210,7 @@ namespace GameClient
         public static void RemovePawnFromGame(Pawn pawn)
         {
             if (pawn.Spawned) pawn.DeSpawn();
-            if (Find.WorldPawns.AllPawnsAliveOrDead.Contains(pawn)) Find.WorldPawns.RemovePawn(pawn);
+            pawn.Destroy();
         }
 
         public static Pawn[] GetAllSettlementPawns(Faction faction, bool includeAnimals)
