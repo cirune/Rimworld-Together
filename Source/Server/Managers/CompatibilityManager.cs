@@ -30,7 +30,7 @@ namespace GameServer
 
                 foreach (Type type in assembly.GetTypes())
                 {
-                    if (type.Namespace == null) break;
+                    if (type.Namespace == null) continue;
                     else if (type.Namespace.StartsWith("System") || type.Namespace.StartsWith("Microsoft")) continue;
                     else if (type.GetCustomAttributes(typeof(RTStartupAttribute), false).Length != 0)
                     {
