@@ -27,6 +27,6 @@ namespace Shared
 
         public int SpyCost = 100;
 
-        public int OnlineActivityTickMS = 1000;
+        public int OnlineActivityTickMS = 500;
     }
 }
