@@ -6,6 +6,16 @@ namespace Shared
     [Serializable]
     public class PawnOrderData
     {
-        public PawnOrderComponent[] _pawnOrders = new PawnOrderComponent[0];
+        public string _jobDefName;
+
+        public int _jobThingCount;
+
+        public string _pawnId;
+
+        public bool _isDrafted;
+
+        public TransformComponent _transformComponent = new TransformComponent();
+
+        public PawnTargetComponent _targetComponent = new PawnTargetComponent();
     }
 }

@@ -29,20 +29,20 @@ namespace Shared
 
         //Orders
 
-        public PawnOrderData _pawnOrder;
+        public CreationOrderData[] _creationOrders = new CreationOrderData[0];
 
-        public CreationOrderData[] _creationOrder = new CreationOrderData[0];
+        public DestructionOrderData[] _destructionOrders = new DestructionOrderData[0];
 
-        public DestructionOrderData[] _destructionOrder = new DestructionOrderData[0];
+        public DamageOrderData[] _damageOrders = new DamageOrderData[0];
 
-        public DamageOrderData[] _damageOrder = new DamageOrderData[0];
+        public HediffOrderData[] _hediffOrders = new HediffOrderData[0];
 
-        public HediffOrderData[] _hediffOrder = new HediffOrderData[0];
+        public TimeSpeedOrderData[] _timeSpeedOrders = new TimeSpeedOrderData[0];
 
-        public TimeSpeedOrderData[] _timeSpeedOrder = new TimeSpeedOrderData[0];
+        public GameConditionOrderData[] _gameConditionOrders = new GameConditionOrderData[0];
 
-        public GameConditionOrderData[] _gameConditionOrder = new GameConditionOrderData[0];
+        public WeatherOrderData[] _weatherOrders = new WeatherOrderData[0];
 
-        public WeatherOrderData[] _weatherOrder = new WeatherOrderData[0];
+        public PawnOrderData[] _pawnOrders = new PawnOrderData[0];
     }
 }

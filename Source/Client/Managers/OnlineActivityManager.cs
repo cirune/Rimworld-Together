@@ -121,13 +121,7 @@ namespace GameClient
             if (SessionValues.isActivityHost)
             {
                 CameraJumper.TryJump(nonFactionPawns[0].Position, activityMap);
-
-                data._mapFile = null;
-                data._stepMode = OnlineActivityStepMode.Buffer;
-                data._timeSpeedOrder = new TimeSpeedOrderData[] { OnlineActivityOrders.CreateTimeSpeedOrder() };
-
-                Packet packet = Packet.CreatePacketFromObject(nameof(OnlineActivityManager), data);
-                Network.listener.EnqueuePacket(packet);
+                OnlineActivityClock.timeSpeedOrderBuffer.Add(OnlineActivityOrders.CreateTimeSpeedOrder());
             }
 
             // Send it back to host to let them know the visitor is ready and join map
@@ -360,82 +354,54 @@ namespace GameClient
 
     public static class OnlineActivityJobs
     {
-        public static async Task StartJobsTicker()
-        {
-            while (SessionValues.currentRealTimeActivity != OnlineActivityType.None)
-            {
-                try 
-                {  
-                    //GetPawnJobs();
-                    OnlineActivityClock.SendBufferData();
-                }
-                catch (Exception e) { Logger.Error($"Jobs tick failed, this should never happen. Exception > {e}"); }
-
-                await Task.Delay(TimeSpan.FromMilliseconds(SessionValues.actionValues.OnlineActivityTickMS));
-            }
-        }
-
         public static void GetPawnJobs()
         {
-            PawnOrderData pawnOrderData = new PawnOrderData();
-            List<PawnOrderComponent> ordersToGet = new List<PawnOrderComponent>();
             foreach (Pawn pawn in OnlineActivityManager.factionPawns.ToArray())
             {
-                PawnOrderComponent toGet = GetPawnJob(pawn);
-                if (toGet != null) ordersToGet.Add(GetPawnJob(pawn));    
+                PawnOrderData toGet = GetPawnJob(pawn);
+                if (toGet != null) OnlineActivityClock.pawnOrderBuffer.Add(toGet);
             }
-            pawnOrderData._pawnOrders = ordersToGet.ToArray();
-
-            OnlineActivityData onlineActivityData = new OnlineActivityData();
-            onlineActivityData._stepMode = OnlineActivityStepMode.Buffer;
-            onlineActivityData._pawnOrder = pawnOrderData;
-
-            Packet packet = Packet.CreatePacketFromObject(nameof(OnlineActivityManager), onlineActivityData);
-            Network.listener.EnqueuePacket(packet);
         }
 
-        public static void SetPawnJobs(OnlineActivityData data)
+        public static void SetPawnJob(PawnOrderData data)
         {
-            foreach (PawnOrderComponent component in data._pawnOrder._pawnOrders)
+            Pawn pawn = OnlineActivityManagerHelper.GetPawnFromID(data._pawnId, OnlineActivityTargetFaction.NonFaction);
+            IntVec3 jobPosition = ValueParser.ArrayToIntVec3(data._transformComponent.Position);
+            Rot4 jobRotation = ValueParser.IntToRot4(data._transformComponent.Rotation);
+
+            try
             {
-                Pawn pawn = OnlineActivityManagerHelper.GetPawnFromID(component._pawnId, OnlineActivityTargetFaction.NonFaction);
-                IntVec3 jobPosition = ValueParser.ArrayToIntVec3(component._transformComponent.Position);
-                Rot4 jobRotation = ValueParser.IntToRot4(component._transformComponent.Rotation);
+                JobDef jobDef = RimworldManager.GetJobFromDef(data._jobDefName);
+                LocalTargetInfo targetA = SetActionTargetsFromString(data, 0);
+                LocalTargetInfo targetB = SetActionTargetsFromString(data, 1);
+                LocalTargetInfo targetC = SetActionTargetsFromString(data, 2);
 
-                try
-                {
-                    JobDef jobDef = RimworldManager.GetJobFromDef(component._jobDefName);
-                    LocalTargetInfo targetA = SetActionTargetsFromString(component, 0);
-                    LocalTargetInfo targetB = SetActionTargetsFromString(component, 1);
-                    LocalTargetInfo targetC = SetActionTargetsFromString(component, 2);
+                Job newJob = RimworldManager.SetJobFromDef(jobDef, targetA, targetB, targetC);
+                newJob.count = data._jobThingCount;
 
-                    Job newJob = RimworldManager.SetJobFromDef(jobDef, targetA, targetB, targetC);
-                    newJob.count = component._jobThingCount;
-
-                    if (CheckIfJobsAreTheSame(pawn.CurJob, newJob)) continue;
-                    else
-                    {
-                        SetPawnTransform(pawn, jobPosition, jobRotation);
-                        SetPawnDraftState(pawn, component._isDrafted);
-
-                        OnlineActivityQueues.SetThingQueue(pawn);
-                        ChangeCurrentJob(pawn, newJob);
-                        ChangeJobSpeedIfNeeded(newJob);
-                    }
-                }
-
-                // If the job fails to parse we still want to move the pawn around
-                catch
+                if (CheckIfJobsAreTheSame(pawn.CurJob, newJob)) return;
+                else
                 {
                     SetPawnTransform(pawn, jobPosition, jobRotation);
-                    SetPawnDraftState(pawn, component._isDrafted);
-                }   
+                    SetPawnDraftState(pawn, data._isDrafted);
+
+                    OnlineActivityQueues.SetThingQueue(pawn);
+                    ChangeCurrentJob(pawn, newJob);
+                    ChangeJobSpeedIfNeeded(newJob);
+                }
             }
+
+            // If the job fails to parse we still want to move the pawn around
+            catch
+            {
+                SetPawnTransform(pawn, jobPosition, jobRotation);
+                SetPawnDraftState(pawn, data._isDrafted);
+            }   
         }
 
-        public static PawnOrderComponent GetPawnJob(Pawn pawn)
+        public static PawnOrderData GetPawnJob(Pawn pawn)
         {
-            PawnOrderComponent pawnOrder = new PawnOrderComponent();
+            PawnOrderData pawnOrder = new PawnOrderData();
             pawnOrder._pawnId = pawn.ThingID;
 
             Job pawnJob = pawn.CurJob;
@@ -556,7 +522,7 @@ namespace GameClient
             catch (Exception e) { Logger.Warning($"Couldn't apply pawn draft state for {pawn.Label}. Reason: {e}"); }
         }
 
-        public static LocalTargetInfo SetActionTargetsFromString(PawnOrderComponent pawnOrder, int index)
+        public static LocalTargetInfo SetActionTargetsFromString(PawnOrderData pawnOrder, int index)
         {
             try
             {
@@ -725,11 +691,7 @@ namespace GameClient
         public static void ReceiveBufferOrders(OnlineActivityData data)
         {
             if (!CheckIfCanExecuteOrder()) return;
-            else
-            {
-                OnlineActivityJobs.SetPawnJobs(data);
-                OnlineActivityClock.ReceiveAllData(data);
-            }
+            else OnlineActivityClock.ReceiveAllData(data);
         }
 
         public static void ReceiveCreationOrder(CreationOrderData data)
@@ -942,6 +904,8 @@ namespace GameClient
 
     public static class OnlineActivityClock
     {
+        public static List<PawnOrderData> pawnOrderBuffer = new List<PawnOrderData>();
+
         public static List<CreationOrderData> creationOrderBuffer = new List<CreationOrderData>();
 
         public static List<DestructionOrderData> destructionOrderBuffer = new List<DestructionOrderData>();
@@ -956,31 +920,49 @@ namespace GameClient
 
         public static List<WeatherOrderData> weatherOrderBuffer = new List<WeatherOrderData>();
 
+        public static async Task StartClockTicker()
+        {
+            while (SessionValues.currentRealTimeActivity != OnlineActivityType.None)
+            {
+                try 
+                {  
+                    OnlineActivityJobs.GetPawnJobs();
+                    SendBufferData();
+                }
+                catch (Exception e) { Logger.Error($"Activity clock tick failed, this should never happen. Exception > {e}"); }
+
+                await Task.Delay(TimeSpan.FromMilliseconds(SessionValues.actionValues.OnlineActivityTickMS));
+            }
+        }
+
         public static void SendBufferData()
         {
             OnlineActivityData onlineActivityData = new OnlineActivityData();
             onlineActivityData._stepMode = OnlineActivityStepMode.Buffer;
 
-            onlineActivityData._creationOrder = creationOrderBuffer.ToArray();
+            onlineActivityData._creationOrders = creationOrderBuffer.ToArray();
             creationOrderBuffer.Clear();
 
-            onlineActivityData._destructionOrder = destructionOrderBuffer.ToArray();
+            onlineActivityData._destructionOrders = destructionOrderBuffer.ToArray();
             destructionOrderBuffer.Clear();
 
-            onlineActivityData._damageOrder = damageOrderBuffer.ToArray();
+            onlineActivityData._damageOrders = damageOrderBuffer.ToArray();
             damageOrderBuffer.Clear();
 
-            onlineActivityData._hediffOrder = hediffOrderBuffer.ToArray();
+            onlineActivityData._hediffOrders = hediffOrderBuffer.ToArray();
             hediffOrderBuffer.Clear();
 
-            onlineActivityData._timeSpeedOrder = timeSpeedOrderBuffer.ToArray();
+            onlineActivityData._timeSpeedOrders = timeSpeedOrderBuffer.ToArray();
             timeSpeedOrderBuffer.Clear();
 
-            onlineActivityData._gameConditionOrder = gameConditionOrderBuffer.ToArray();
+            onlineActivityData._gameConditionOrders = gameConditionOrderBuffer.ToArray();
             gameConditionOrderBuffer.Clear();
 
-            onlineActivityData._weatherOrder = weatherOrderBuffer.ToArray();
+            onlineActivityData._weatherOrders = weatherOrderBuffer.ToArray();
             weatherOrderBuffer.Clear();
+
+            onlineActivityData._pawnOrders = pawnOrderBuffer.ToArray();
+            pawnOrderBuffer.Clear();
 
             Packet packet = Packet.CreatePacketFromObject(nameof(OnlineActivityManager), onlineActivityData);
             Network.listener.EnqueuePacket(packet);
@@ -988,13 +970,14 @@ namespace GameClient
 
         public static void ReceiveAllData(OnlineActivityData data)
         {
-            foreach (CreationOrderData order in data._creationOrder) OnlineActivityOrders.ReceiveCreationOrder(order);
-            foreach (DestructionOrderData order in data._destructionOrder) OnlineActivityOrders.ReceiveDestructionOrder(order);
-            foreach (DamageOrderData order in data._damageOrder) OnlineActivityOrders.ReceiveDamageOrder(order);
-            foreach (HediffOrderData order in data._hediffOrder) OnlineActivityOrders.ReceiveHediffOrder(order);
-            foreach (TimeSpeedOrderData order in data._timeSpeedOrder) OnlineActivityOrders.ReceiveTimeSpeedOrder(order);
-            foreach (GameConditionOrderData order in data._gameConditionOrder) OnlineActivityOrders.ReceiveGameConditionOrder(order);
-            foreach (WeatherOrderData order in data._weatherOrder) OnlineActivityOrders.ReceiveWeatherOrder(order);
+            foreach (CreationOrderData order in data._creationOrders) OnlineActivityOrders.ReceiveCreationOrder(order);
+            foreach (DestructionOrderData order in data._destructionOrders) OnlineActivityOrders.ReceiveDestructionOrder(order);
+            foreach (DamageOrderData order in data._damageOrders) OnlineActivityOrders.ReceiveDamageOrder(order);
+            foreach (HediffOrderData order in data._hediffOrders) OnlineActivityOrders.ReceiveHediffOrder(order);
+            foreach (TimeSpeedOrderData order in data._timeSpeedOrders) OnlineActivityOrders.ReceiveTimeSpeedOrder(order);
+            foreach (GameConditionOrderData order in data._gameConditionOrders) OnlineActivityOrders.ReceiveGameConditionOrder(order);
+            foreach (WeatherOrderData order in data._weatherOrders) OnlineActivityOrders.ReceiveWeatherOrder(order);
+            foreach (PawnOrderData order in data._pawnOrders) OnlineActivityJobs.SetPawnJob(order);
         }
     }
 
