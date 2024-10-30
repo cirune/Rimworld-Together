@@ -114,6 +114,7 @@ namespace GameClient
                 if (Network.state == ClientNetworkState.Connected)
                 {
                     if (!ClientValues.isReadyToPlay) return;
+                    if (!SessionValues.actionValues.EnableNPCDestruction) return;
 
                     if (__instance.Faction == Faction.OfPlayer) return;
                     else if (FactionValues.playerFactions.Contains(__instance.Faction)) return;
