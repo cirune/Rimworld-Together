@@ -31,5 +31,16 @@ namespace GameClient
             }
             catch { return false; }
         }
+
+        public static bool CheckIfThingIsCorpse(Thing thing)
+        {
+            try
+            {
+                Corpse corpse = thing as Corpse;
+                if (corpse != null) return true;
+                else return false;
+            }
+            catch { return false; }
+        }
     }
 }

@@ -58,7 +58,7 @@ namespace Shared
 
         public enum ActionTargetType { Thing, Human, Animal, Cell, Invalid }
 
-        public enum CreationType { Human, Animal, Thing }
+        public enum CreationType { Human, Animal, Corpse, Thing }
 
         public enum SiteStepMode { Accept, Build, Destroy, Info, Deposit, Retrieve, Reward, WorkerError }
 

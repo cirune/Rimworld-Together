@@ -255,8 +255,7 @@ namespace GameClient
             // We set the faction of the other side depending on the activity type
             foreach (Pawn pawn in OnlineActivityManager.nonFactionPawns)
             {
-                if (SessionValues.currentRealTimeActivity == OnlineActivityType.Visit) pawn.SetFactionDirect(FactionValues.allyPlayer);
-                else pawn.SetFactionDirect(FactionValues.enemyPlayer);
+                pawn.SetFactionDirect(GetFactionDependantOnMode());
             }
         }
 
@@ -378,6 +377,12 @@ namespace GameClient
             }
 
             return toGet.ToArray();
+        }
+
+        public static Faction GetFactionDependantOnMode()
+        {
+            if (SessionValues.currentRealTimeActivity == OnlineActivityType.Visit) return FactionValues.allyPlayer;
+            else return FactionValues.enemyPlayer;
         }
     }
 
@@ -646,6 +651,7 @@ namespace GameClient
 
             if (ScribeHelper.CheckIfThingIsHuman(thing)) creationOrder._creationType = CreationType.Human;
             else if (ScribeHelper.CheckIfThingIsAnimal(thing)) creationOrder._creationType = CreationType.Animal;
+            else if (ScribeHelper.CheckIfThingIsCorpse(thing)) creationOrder._creationType = CreationType.Corpse;
             else creationOrder._creationType = CreationType.Thing;
 
             // Modify position based on center cell because RimWorld doesn't store it by default
@@ -653,6 +659,7 @@ namespace GameClient
 
             if (creationOrder._creationType == CreationType.Human) creationOrder._dataToCreate = Serializer.ConvertObjectToBytes(HumanScriber.HumanToString((Pawn)thing));
             else if (creationOrder._creationType == CreationType.Animal) creationOrder._dataToCreate = Serializer.ConvertObjectToBytes(AnimalScriber.AnimalToString((Pawn)thing));
+            else if (creationOrder._creationType == CreationType.Corpse) creationOrder._dataToCreate = Serializer.ConvertObjectToBytes(ThingScriber.ThingToString((ThingWithComps)thing, thing.stackCount));
             else if (creationOrder._creationType == CreationType.Thing) creationOrder._dataToCreate = Serializer.ConvertObjectToBytes(ThingScriber.ThingToString(thing, thing.stackCount));
 
             return creationOrder;
@@ -756,13 +763,16 @@ namespace GameClient
                 case CreationType.Human:
                     HumanFile humanData = Serializer.ConvertBytesToObject<HumanFile>(data._creationOrder._dataToCreate, false);
                     toCreate = HumanScriber.StringtoHuman(humanData, true);
-                    toCreate.SetFaction(FactionValues.allyPlayer);
                     break;
 
                 case CreationType.Animal:
                     AnimalFile animalData = Serializer.ConvertBytesToObject<AnimalFile>(data._creationOrder._dataToCreate, false);
                     toCreate = AnimalScriber.StringToAnimal(animalData, true);
-                    toCreate.SetFaction(FactionValues.allyPlayer);
+                    break;
+
+                case CreationType.Corpse:
+                    ThingFile corpseData = Serializer.ConvertBytesToObject<ThingFile>(data._creationOrder._dataToCreate, false);
+                    toCreate = ThingScriber.StringToThing(corpseData, true);
                     break;
 
                 case CreationType.Thing:
@@ -774,6 +784,8 @@ namespace GameClient
             // If we receive a hash that doesn't exist or we are host we ignore it
             if (toCreate != null && !SessionValues.isActivityHost)
             {
+                if (toCreate.def.CanHaveFaction) toCreate.SetFactionDirect(OnlineActivityManagerHelper.GetFactionDependantOnMode());
+
                 OnlineActivityQueues.SetThingQueue(toCreate);
                 RimworldManager.PlaceThingIntoMap(toCreate, OnlineActivityManager.activityMap, ThingPlaceMode.Direct, false);
             }

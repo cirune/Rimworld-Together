@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 using HarmonyLib;
@@ -79,5 +80,31 @@ namespace GameClient
         }
     }
 
-    
+    //TODO
+    //Find a way to handle scribe errors better than this
+    //For real
+
+    [HarmonyPatch(typeof(Log), nameof(Log.Warning))]
+    public static class PatchWarning
+    {
+        [HarmonyPrefix]
+        public static bool DoPre()
+        {
+            if (Network.state == ClientNetworkState.Disconnected) return true;
+            else if (!ClientValues.isUsingScriber) return true;
+            else return false;
+        }
+    }
+
+    [HarmonyPatch(typeof(Log), nameof(Log.Error))]
+    public static class PatchError
+    {
+        [HarmonyPrefix]
+        public static bool DoPre()
+        {
+            if (Network.state == ClientNetworkState.Disconnected) return true;
+            else if (!ClientValues.isUsingScriber) return true;
+            else return false;
+        }
+    }
 }
