@@ -282,14 +282,13 @@ namespace GameClient
                 {
                     if (site.MainSitePartDef == siteDefs[i])
                     {
-                        //FIXME
-                        // ThingDataFile thingData = new ThingDataFile();
-                        // thingData.DefName = siteRewardDefNames[i].defName;
-                        // thingData.Quantity = siteRewardCount[i];
-                        // thingData.Quality = 0;
-                        // thingData.Hitpoints = siteRewardDefNames[i].BaseMaxHitPoints;
-                        // if (siteRewardCount[i] > 0) thingsToGet.Add(ThingScriber.StringToThing(thingData));
+                        ThingDef toUse = DefDatabase<ThingDef>.AllDefs.First(fetch => fetch.defName == siteRewardDefNames[i].defName);
+                        
+                        Thing thing = ThingMaker.MakeThing(toUse);
+                        thing.stackCount = siteRewardCount[i];
+                        thing.HitPoints = siteRewardDefNames[i].BaseMaxHitPoints;
 
+                        thingsToGet.Add(thing);
                         break;
                     }
                 }
