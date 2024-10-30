@@ -320,7 +320,7 @@ namespace GameClient
                 {
                     foreach (Pawn pawn in SessionValues.chosenCaravan.pawns)
                     {
-                        if (DeepScribeHelper.CheckIfThingIsHuman(pawn))
+                        if (ScribeHelper.CheckIfThingIsHuman(pawn))
                         {
                             if (allowHumans)
                             {
@@ -334,7 +334,7 @@ namespace GameClient
                             }
                         }
 
-                        else if (DeepScribeHelper.CheckIfThingIsAnimal(pawn))
+                        else if (ScribeHelper.CheckIfThingIsAnimal(pawn))
                         {
                             if (allowAnimals)
                             {
@@ -373,7 +373,7 @@ namespace GameClient
                 {
                     foreach (Pawn pawn in pawnsInMap)
                     {
-                        if (DeepScribeHelper.CheckIfThingIsAnimal(pawn))
+                        if (ScribeHelper.CheckIfThingIsAnimal(pawn))
                         {
                             if (allowAnimals)
                             {
@@ -434,7 +434,7 @@ namespace GameClient
                 {
                     foreach (Pawn pawn in pawnsInMap)
                     {
-                        if (DeepScribeHelper.CheckIfThingIsAnimal(pawn))
+                        if (ScribeHelper.CheckIfThingIsAnimal(pawn))
                         {
                             if (allowAnimals)
                             {

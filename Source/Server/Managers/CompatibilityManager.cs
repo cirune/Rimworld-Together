@@ -1,12 +1,9 @@
 ﻿using Shared;
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Reflection;
-using Verse;
-namespace GameClient
+
+namespace GameServer
 {
-    public static class CompatibilityManager 
+    public static class CompatibilityManager
     {
         public static void LoadAllPatchedAssemblies()
         {
@@ -16,11 +13,11 @@ namespace GameClient
                 Assembly toAdd = LoadCustomAssembly(compatibility);
                 if (toAdd != null) toLoad.Add(toAdd);    
             }
-            
+
             if (toLoad.Count > 0)
             {
                 Master.loadedCompatibilityPatches = toLoad.ToArray();
-                Logger.Warning($"Loaded > {Master.loadedCompatibilityPatches.Length} patches");
+                Logger.Warning($"Loaded > {Master.loadedCompatibilityPatches.Length} patches from '{Master.compatibilityPatchesPath}'");
                 Logger.Warning($"CAUTION > Custom patches aren't created by the mod developers, always use them with care");
             }
         }
@@ -56,23 +53,15 @@ namespace GameClient
             return null;
         }
     }
-
+    
     public static class CompatibilityManagerHelper
     {
-        public static readonly string PatchFolderName = "RTPatches";
+        public static readonly string fileExtension = ".dll";
 
         public static string[] GetAllPatchedMods()
         {
-            List<string> results = new List<string>();
-            foreach (ModContentPack mod in LoadedModManager.RunningMods)
-            {
-                if (Directory.Exists(Path.Combine(mod.RootDir, PatchFolderName)))
-                {
-                    results.AddRange(Directory.GetFiles(Path.Combine(mod.RootDir, PatchFolderName)));
-                }
-            }
-            
-            return results.ToArray();
+            return Directory.GetFiles(Master.compatibilityPatchesPath)
+                .Where(fetch => fetch.EndsWith(fileExtension)).ToArray();
         }
     }
 }

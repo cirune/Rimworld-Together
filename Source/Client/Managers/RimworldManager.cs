@@ -116,8 +116,8 @@ namespace GameClient
         public static Thing[] GetThingsInMap(Map map)
         {
             return map.listerThings.AllThings.Where(fetch =>
-                !DeepScribeHelper.CheckIfThingIsHuman(fetch) &&
-                !DeepScribeHelper.CheckIfThingIsAnimal(fetch))
+                !ScribeHelper.CheckIfThingIsHuman(fetch) &&
+                !ScribeHelper.CheckIfThingIsAnimal(fetch))
                 .ToArray();
         }
 
@@ -232,7 +232,7 @@ namespace GameClient
             else
             {
                 if (includeAnimals) return map.mapPawns.AllPawns.Where(fetch => fetch.Faction == faction).ToArray();
-                else return map.mapPawns.AllPawns.Where(fetch => fetch.Faction == faction && !DeepScribeHelper.CheckIfThingIsAnimal(fetch)).ToArray();
+                else return map.mapPawns.AllPawns.Where(fetch => fetch.Faction == faction && !ScribeHelper.CheckIfThingIsAnimal(fetch)).ToArray();
             }
         }
 

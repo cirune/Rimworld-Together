@@ -35,7 +35,7 @@ namespace GameClient
 
         public static MapFile ParseMap(Map map, bool includeThings, bool includeHumans, bool includeAnimals, bool includeMods)
         {
-            MapFile mapFile = MapScribeManager.MapToString(map, includeThings, includeThings, includeHumans, includeHumans, includeAnimals, includeAnimals);
+            MapFile mapFile = MapScriber.MapToString(map, includeThings, includeThings, includeHumans, includeHumans, includeAnimals, includeAnimals);
 
             if (includeMods) mapFile.Mods = ModManagerHelper.GetRunningModList();
 
