@@ -12,38 +12,48 @@ namespace GameServer
     {
         public static void ParsePacket(ServerClient client, Packet packet)
         {
+            if (!Master.actionValues.EnablePollutionSpread)
+            {
+                ResponseShortcutManager.SendIllegalPacket(client, "Tried to use disabled feature!");
+                return;
+            }
+
             PollutionData data = Serializer.ConvertBytesToObject<PollutionData>(packet.contents);
             AddPollutionToTile(data, client, true);
         }
-        public static void AddPollutionToTile(PollutionData data,ServerClient client , bool shouldBroadcast = false)
+
+        public static void AddPollutionToTile(PollutionData data, ServerClient client, bool shouldBroadcast)
         {
             try
             {
-                if (Master.serverConfig.AllowBiotechPollutionModification)
+                bool isNewPollutedTile = false;
+
+                PollutionDetails toSearch = Master.worldValues.PollutedTiles.FirstOrDefault(T => T.tile == data._pollutionData.tile);
+                if (toSearch == null)
                 {
-                    bool wasNull = false;
-                    PollutionDetails toSearch = Master.worldValues.PollutedTiles.Where(T => T.tile == data._pollutionData.tile).FirstOrDefault();
-                    if (toSearch == null)
-                    {
-                        wasNull = true;
-                        toSearch = new PollutionDetails();
-                    }
-                    toSearch.tile = data._pollutionData.tile;
-                    toSearch.quantity += data._pollutionData.quantity;
-                    if (shouldBroadcast)
-                    {
-                        Packet packet = Packet.CreatePacketFromObject(nameof(PollutionManager), data);
-                        NetworkHelper.SendPacketToAllClients(packet, client);
-                    }
-                    if (wasNull) 
-                    {
-                        List<PollutionDetails> temp = Master.worldValues.PollutedTiles.ToList();
-                        temp.Add(toSearch);
-                        Master.worldValues.PollutedTiles = temp.ToArray();
-                    }
-                    Main_.SaveValueFile(ServerFileMode.World, false);
+                    toSearch = new PollutionDetails();
+                    isNewPollutedTile = true;
                 }
-            } 
+
+                toSearch.tile = data._pollutionData.tile;
+                toSearch.quantity += data._pollutionData.quantity;
+
+                if (isNewPollutedTile)
+                {
+                    List<PollutionDetails> existingPollutedTiles = Master.worldValues.PollutedTiles.ToList();
+                    existingPollutedTiles.Add(toSearch);
+                    Master.worldValues.PollutedTiles = existingPollutedTiles.ToArray();
+                }
+
+                if (shouldBroadcast)
+                {
+                    Packet packet = Packet.CreatePacketFromObject(nameof(PollutionManager), data);
+                    NetworkHelper.SendPacketToAllClients(packet, client);
+                }
+
+                Main_.SaveValueFile(ServerFileMode.World, false);
+            }
+
             catch 
             {
                 Logger.Warning($"Could not add pollution to tile {data._pollutionData.tile}. Coming from {client.userFile.Username}");

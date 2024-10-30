@@ -18,12 +18,17 @@ namespace GameClient
 {
     public static class PollutionPatch
     {
-
         [HarmonyPatch(typeof(WorldPollutionUtility), nameof(WorldPollutionUtility.PolluteWorldAtTile))]
         public static class PatchAddPollution
         {
-            public static int lastPollutedTile;
-            public static bool addedByServer = false;
+            private static int lastPollutedTile;
+
+            public static bool addedByServer;
+
+            public static void StoreNumValue(int num) { lastPollutedTile = num; }
+
+            // TODO
+            // Find out why the transpiler is allergic to IF statements
 
             [HarmonyTranspiler]
             public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
@@ -43,30 +48,24 @@ namespace GameClient
                 return codes.AsEnumerable();
             }
 
-            public static void StoreNumValue(int num)
-            {
-                lastPollutedTile = num;
-            }
-
             [HarmonyPostfix]
             public static void DoPost(float pollutionAmount)
             {
-                if (addedByServer)
-                {
-                    addedByServer = false;
-                    return;
-                }
                 if (Network.state == ClientNetworkState.Disconnected) return;
+                else if (!SessionValues.actionValues.EnablePollutionSpread) return;
+                else if (addedByServer) addedByServer = false;
+                else
+                {
+                    PollutionDetails pollution = new PollutionDetails();
+                    pollution.tile = lastPollutedTile;
+                    pollution.quantity = pollutionAmount;
 
-                int id = lastPollutedTile;
+                    PollutionData data = new PollutionData();
+                    data._pollutionData = pollution;
 
-                PollutionDetails pollution = new PollutionDetails();
-                pollution.tile = id;
-                pollution.quantity = pollutionAmount;
-                PollutionData data = new PollutionData();
-                data._pollutionData = pollution;
-                Packet packet = Packet.CreatePacketFromObject(nameof(PollutionManager), data);
-                Network.listener.EnqueuePacket(packet);
+                    Packet packet = Packet.CreatePacketFromObject(nameof(PollutionManager), data);
+                    Network.listener.EnqueuePacket(packet);
+                }
             }
         }
 

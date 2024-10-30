@@ -7,20 +7,20 @@ namespace GameClient
 {
     public static class PollutionManager
     {
-
         public static void ParsePacket(Packet packet) 
         {
             if (ModsConfig.BiotechActive)
             {
                 PollutionData data = Serializer.ConvertBytesToObject<PollutionData>(packet.contents);
-                AddPollutedTileOrganic(data._pollutionData, true);
+                AddPollutedTileOrganic(data._pollutionData);
             }
         }
+
         public static void AddPollutedTiles(PollutionDetails[] details, bool forceRefresh)
         {
             if (details == null) return;
 
-            foreach(PollutionDetails detail in details)
+            foreach (PollutionDetails detail in details)
             {
                 AddPollutedTileSimple(detail, forceRefresh);
             }
@@ -29,7 +29,7 @@ namespace GameClient
             if (!forceRefresh) PollutionManagerHelper.ForcePollutionLayerRefresh();
         }
 
-        public static void AddPollutedTileOrganic(PollutionDetails details, bool forceRefresh) 
+        public static void AddPollutedTileOrganic(PollutionDetails details) 
         {
             PollutionPatch.PatchAddPollution.addedByServer = true;
             WorldPollutionUtility.PolluteWorldAtTile(details.tile, details.quantity);

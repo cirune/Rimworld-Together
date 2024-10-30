@@ -21,10 +21,6 @@
 
         public bool SyncLocalSave = true;
 
-        public bool AllowNPCDestruction = false;
-
-        public bool AllowBiotechPollutionModification = true;
-
         public bool TemporalActivityProtection = true;
 
         public bool TemporalEventProtection = true;
