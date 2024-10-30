@@ -139,16 +139,6 @@ namespace GameClient
                 Packet packet = Packet.CreatePacketFromObject(nameof(TransferManager), SessionValues.outgoingManifest);
                 Network.listener.EnqueuePacket(packet);
             }
-
-            else if (transferLocation == TransferLocation.Market)
-            {
-                MarketData marketData = new MarketData();
-                marketData._stepMode = MarketStepMode.Add;
-                marketData._transferThings = SessionValues.outgoingManifest._things;
-
-                Packet packet = Packet.CreatePacketFromObject(nameof(MarketManager), marketData);
-                Network.listener.EnqueuePacket(packet);
-            }
         }
 
         //Recovers transfered items when trade fails

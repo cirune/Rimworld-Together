@@ -12,7 +12,7 @@ namespace Shared
 
         public enum SaveStepMode { Send, Receive, Reset }
 
-        public enum ServerFileMode { Configs, Actions, Sites, Roads, World, Whitelist, Difficulty, Market, Discord, Backup, Mods, Chat }
+        public enum ServerFileMode { Configs, Actions, Sites, Roads, World, Whitelist, Difficulty, Discord, Backup, Mods, Chat }
 
         public enum LogMode { Message, Warning, Error, Title, Outsider }
 
@@ -21,8 +21,6 @@ namespace Shared
         public enum CommandMode { Op, Deop, Broadcast, ForceSave }
 
         public enum EventStepMode { Send, Receive, Recover }
-
-        public enum MarketStepMode { Add, Request, Reload }
 
         public enum AidStepMode { Send, Receive, Accept, Reject }
 
@@ -40,11 +38,11 @@ namespace Shared
 
         public enum GoodwillTarget { Settlement, Site }
 
-        public enum TransferMode { Gift, Trade, Rebound, Pod, Market }
+        public enum TransferMode { Gift, Trade, Rebound, Pod }
 
-        public enum TransferLocation { Caravan, Settlement, Pod, Market }
+        public enum TransferLocation { Caravan, Settlement, Pod }
 
-        public enum TransferStepMode { TradeRequest, TradeAccept, TradeReject, TradeReRequest, TradeReAccept, TradeReReject, Recover, Pod, Market }
+        public enum TransferStepMode { TradeRequest, TradeAccept, TradeReject, TradeReRequest, TradeReAccept, TradeReReject, Recover, Pod }
 
         public enum OfflineActivityStepMode { Request, Deny, Unavailable }
 

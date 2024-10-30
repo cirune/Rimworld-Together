@@ -196,25 +196,6 @@ namespace GameClient
                     }
                 };
 
-                Command_Action command_GlobalMarketMenu = new Command_Action
-                {
-                    defaultLabel = "Global Market Menu",
-                    defaultDesc = "Access the global market",
-                    icon = ContentFinder<Texture2D>.Get("Commands/GlobalMarket"),
-                    action = delegate 
-                    {
-                        SessionValues.chosenSettlement = Find.WorldObjects.Settlements.First(fetch => fetch.Faction == Faction.OfPlayer);
-
-                        if (SessionValues.actionValues.EnableMarket)
-                        {
-                            if (RimworldManager.CheckIfPlayerHasConsoleInMap(SessionValues.chosenSettlement.Map)) MarketManager.RequestReloadStock();
-                            else DialogManager.PushNewDialog(new RT_Dialog_Error("You need a comms console to use the market!"));
-                        }
-                        else DialogManager.PushNewDialog(new RT_Dialog_Error("This feature has been disabled in this server!"));
-                    }
-                };
-
-                gizmoList.Add(command_GlobalMarketMenu);
                 gizmoList.Add(command_FactionMenu);
                 __result = gizmoList;
             }

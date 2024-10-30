@@ -113,9 +113,6 @@ namespace GameServer
             LoadValueFile(ServerFileMode.Difficulty);
             SaveValueFile(ServerFileMode.Difficulty, false);
 
-            LoadValueFile(ServerFileMode.Market);
-            SaveValueFile(ServerFileMode.Market, false);
-
             LoadValueFile(ServerFileMode.Discord);
             SaveValueFile(ServerFileMode.Discord, false);
 
@@ -173,11 +170,6 @@ namespace GameServer
                 case ServerFileMode.Difficulty:
                     pathToSave = Path.Combine(Master.corePath, "DifficultyValues.json");
                     Serializer.SerializeToFile(pathToSave, Master.difficultyValues);
-                    break;
-
-                case ServerFileMode.Market:
-                    pathToSave = Path.Combine(Master.corePath, "MarketValues.json");
-                    Serializer.SerializeToFile(pathToSave, Master.marketValues);
                     break;
 
                 case ServerFileMode.Discord:
@@ -272,16 +264,6 @@ namespace GameServer
                     {
                         Master.difficultyValues = new DifficultyValuesFile();
                         Serializer.SerializeToFile(pathToLoad, Master.difficultyValues);
-                    }
-                    break;
-
-                case ServerFileMode.Market:
-                    pathToLoad = Path.Combine(Master.corePath, "MarketValues.json");
-                    if (File.Exists(pathToLoad)) Master.marketValues = Serializer.SerializeFromFile<MarketValuesFile>(pathToLoad);
-                    else
-                    {
-                        Master.marketValues = new MarketValuesFile();
-                        Serializer.SerializeToFile(pathToLoad, Master.marketValues);
                     }
                     break;
 
