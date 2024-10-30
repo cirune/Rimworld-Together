@@ -1013,7 +1013,7 @@ namespace GameClient
         {
             if (checkFactionPawns && OnlineActivityManager.factionPawns.Contains(toPatch)) return true;
             else if (checkNonFactionPawns && OnlineActivityManager.nonFactionPawns.Contains(toPatch)) return true;
-            else if (checkMapThings && OnlineActivityManager.activityMapThings.Contains(toPatch)) return true;
+            else if (checkMapThings && toPatch.Map == OnlineActivityManager.activityMap) return true;
             else return false;
         }
 
@@ -1021,7 +1021,7 @@ namespace GameClient
         {
             if (checkFactionPawns && OnlineActivityManager.factionPawns.Contains(toPatch)) return false;
             else if (checkNonFactionPawns && OnlineActivityManager.nonFactionPawns.Contains(toPatch)) return false;
-            else if (checkMapThings && OnlineActivityManager.activityMapThings.Contains(toPatch)) return false;
+            else if (checkMapThings && toPatch.Map == OnlineActivityManager.activityMap) return false;
             else return true;
         }
 
