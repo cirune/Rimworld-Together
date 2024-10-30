@@ -50,7 +50,6 @@ namespace GameClient
         {
             Master.mainPath = GenFilePaths.SaveDataFolderPath;
             Master.modFolderPath = Path.Combine(Master.mainPath, "RimWorld Together");
-            Master.scribeFolderPath = Path.Combine(Master.modFolderPath, "Scribes");
             Master.modAssemblyPath = Path.Combine(LoadedModManager.GetMod<Mod>().Content.ModMetaData.RootDir.FullName, "Current", "Assemblies");
 
             Master.connectionDataPath = Path.Combine(Master.modFolderPath, "ConnectionData.json");
@@ -59,7 +58,6 @@ namespace GameClient
             Master.savesFolderPath = GenFilePaths.SavedGamesFolderPath;
 
             if (!Directory.Exists(Master.modFolderPath)) Directory.CreateDirectory(Master.modFolderPath);
-            if (!Directory.Exists(Master.scribeFolderPath)) Directory.CreateDirectory(Master.scribeFolderPath);
         }
 
         public static void CreateUnityDispatcher()
