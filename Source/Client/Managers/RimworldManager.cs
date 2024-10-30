@@ -210,7 +210,7 @@ namespace GameClient
             else
             {
                 if (includeAnimals) return map.mapPawns.AllPawns.Where(fetch => fetch.Faction == faction).ToArray();
-                else return map.mapPawns.AllPawns.Where(fetch => fetch.Faction == faction && !ScribeHelper.CheckIfThingIsAnimal(fetch)).ToArray();
+                else return map.mapPawns.AllPawns.Where(fetch => fetch.Faction == faction && !RTScriberHelper.CheckIfThingIsAnimal(fetch)).ToArray();
             }
         }
 

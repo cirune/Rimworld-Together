@@ -369,7 +369,7 @@ namespace GameClient
 
         public static void AddThingToTransferManifest(Thing thing, int thingCount)
         {
-            if (ScribeHelper.CheckIfThingIsHuman(thing))
+            if (RTScriberHelper.CheckIfThingIsHuman(thing))
             {
                 Pawn pawn = thing as Pawn;
 
@@ -378,7 +378,7 @@ namespace GameClient
                 RimworldManager.RemovePawnFromGame(pawn);
             }
 
-            else if (ScribeHelper.CheckIfThingIsAnimal(thing))
+            else if (RTScriberHelper.CheckIfThingIsAnimal(thing))
             {
                 Pawn pawn = thing as Pawn;
 
