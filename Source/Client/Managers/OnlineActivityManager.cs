@@ -27,6 +27,8 @@ namespace GameClient
         {
             OnlineActivityData data = Serializer.ConvertBytesToObject<OnlineActivityData>(packet.contents);
 
+            Logger.Warning(data._stepMode.ToString(), LogImportanceMode.Extreme);
+
             switch (data._stepMode)
             {
                 case OnlineActivityStepMode.Request:
@@ -107,6 +109,8 @@ namespace GameClient
         {
             Action r1 = delegate
             {
+                gameTicksBeforeActivity = RimworldManager.GetGameTicks();
+
                 data._stepMode = OnlineActivityStepMode.Accept;
 
                 Map toGet = Find.WorldObjects.Settlements.First(fetch => fetch.Tile == data._toTile && fetch.Faction == Faction.OfPlayer).Map;
@@ -217,22 +221,8 @@ namespace GameClient
         public static void SetFactionPawnsForActivity()
         {
             OnlineActivityManager.factionPawns.Clear();
-
-            if (SessionValues.isActivityHost)
-            {
-                foreach (Pawn pawn in OnlineActivityManager.activityMap.mapPawns.AllPawns.ToList())
-                {
-                    OnlineActivityManager.factionPawns.Add(pawn);
-                }
-            }
-
-            else
-            {
-                foreach (Pawn pawn in SessionValues.chosenCaravan.PawnsListForReading.ToList())
-                {
-                    OnlineActivityManager.factionPawns.Add(pawn);
-                }
-            }
+            if (SessionValues.isActivityHost) OnlineActivityManager.factionPawns = OnlineActivityManager.activityMap.mapPawns.AllPawns.ToList();
+            else OnlineActivityManager.factionPawns = SessionValues.chosenCaravan.PawnsListForReading.ToList();
         }
 
         public static void SetNonFactionPawnsForActivity(OnlineActivityData data)
@@ -428,8 +418,8 @@ namespace GameClient
             foreach(PawnOrderComponent component in data._pawnOrder._pawnOrders)
             {
                 Pawn pawn = OnlineActivityManagerHelper.GetPawnFromID(component._pawnId, OnlineActivityTargetFaction.NonFaction);
-                IntVec3 jobPosition = ValueParser.ArrayToIntVec3(component._updatedPosition);
-                Rot4 jobRotation = ValueParser.IntToRot4(component._updatedRotation);
+                IntVec3 jobPosition = ValueParser.ArrayToIntVec3(component._transformComponent.Position);
+                Rot4 jobRotation = ValueParser.IntToRot4(component._transformComponent.Rotation);
 
                 try
                 {
@@ -477,8 +467,8 @@ namespace GameClient
             pawnOrder._targetComponent.targetFactions = GetActionTargetFactions(pawnJob);
 
             pawnOrder._isDrafted = GetPawnDraftState(pawn);
-            pawnOrder._updatedPosition = ValueParser.IntVec3ToArray(pawn.Position);
-            pawnOrder._updatedRotation = ValueParser.Rot4ToInt(pawn.Rotation);
+            pawnOrder._transformComponent.Position = ValueParser.IntVec3ToArray(pawn.Position);
+            pawnOrder._transformComponent.Rotation = ValueParser.Rot4ToInt(pawn.Rotation);
 
             return pawnOrder;
         }
@@ -764,19 +754,19 @@ namespace GameClient
             switch(data._creationOrder._creationType)
             {
                 case CreationType.Human:
-                    HumanFile humanData = Serializer.ConvertBytesToObject<HumanFile>(data._creationOrder._dataToCreate);
+                    HumanFile humanData = Serializer.ConvertBytesToObject<HumanFile>(data._creationOrder._dataToCreate, false);
                     toCreate = HumanScriber.StringtoHuman(humanData, true);
                     toCreate.SetFaction(FactionValues.allyPlayer);
                     break;
 
                 case CreationType.Animal:
-                    AnimalFile animalData = Serializer.ConvertBytesToObject<AnimalFile>(data._creationOrder._dataToCreate);
+                    AnimalFile animalData = Serializer.ConvertBytesToObject<AnimalFile>(data._creationOrder._dataToCreate, false);
                     toCreate = AnimalScriber.StringToAnimal(animalData, true);
                     toCreate.SetFaction(FactionValues.allyPlayer);
                     break;
 
                 case CreationType.Thing:
-                    ThingFile thingData = Serializer.ConvertBytesToObject<ThingFile>(data._creationOrder._dataToCreate);
+                    ThingFile thingData = Serializer.ConvertBytesToObject<ThingFile>(data._creationOrder._dataToCreate, false);
                     toCreate = ThingScriber.StringToThing(thingData, true);
                     break;
             }

@@ -12,9 +12,7 @@ namespace Shared
 
         public bool _isDrafted;
 
-        public int[] _updatedPosition;
-        
-        public int _updatedRotation;
+        public TransformComponent _transformComponent = new TransformComponent();
 
         public PawnTargetComponent _targetComponent = new PawnTargetComponent();
     }
