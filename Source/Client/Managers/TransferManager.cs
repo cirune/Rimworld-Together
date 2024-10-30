@@ -383,7 +383,7 @@ namespace GameClient
             {
                 Pawn pawn = thing as Pawn;
 
-                SessionValues.outgoingManifest._humans.Add(HumanScriber.ToString(pawn));
+                SessionValues.outgoingManifest._humans.Add(HumanScriber.HumanToString(pawn));
 
                 RimworldManager.RemovePawnFromGame(pawn);
             }
@@ -392,12 +392,12 @@ namespace GameClient
             {
                 Pawn pawn = thing as Pawn;
 
-                SessionValues.outgoingManifest._animals.Add(AnimalScriber.ToString(pawn));
+                SessionValues.outgoingManifest._animals.Add(AnimalScriber.AnimalToString(pawn));
 
                 RimworldManager.RemovePawnFromGame(pawn);
             }
 
-            else SessionValues.outgoingManifest._things.Add(ThingScriber.ToString(thing, thingCount));
+            else SessionValues.outgoingManifest._things.Add(ThingScriber.ThingToString(thing, thingCount));
         }
 
         //Gets the transfer location in the desired map
@@ -426,17 +426,17 @@ namespace GameClient
 
             foreach (HumanFile file in transferData._humans)
             {
-                allTransferedItems.Add(HumanScriber.FromString(file));
+                allTransferedItems.Add(HumanScriber.StringtoHuman(file));
             }
 
             foreach (AnimalFile file in transferData._animals)
             {
-                allTransferedItems.Add(AnimalScriber.FromString(file));
+                allTransferedItems.Add(AnimalScriber.StringToAnimal(file));
             }
 
             foreach (ThingFile file in transferData._things)
             {
-                allTransferedItems.Add(ThingScriber.FromString(file));
+                allTransferedItems.Add(ThingScriber.StringToThing(file));
             }
 
             return allTransferedItems.ToArray();

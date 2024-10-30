@@ -29,6 +29,8 @@ namespace GameClient
 
             GetMapWeather(mapFile, map);
 
+            GetMapMods(mapFile);
+
             return mapFile;
         }
 
@@ -105,7 +107,7 @@ namespace GameClient
                 {
                     if (!ScribeHelper.CheckIfThingIsHuman(thing) && !ScribeHelper.CheckIfThingIsAnimal(thing))
                     {
-                        ThingFile thingData = ThingScriber.ToString(thing, thing.stackCount);
+                        ThingFile thingData = ThingScriber.ThingToString(thing, thing.stackCount);
 
                         if (thing.def.alwaysHaulable && factionThings) tempFactionThings.Add(thingData);
                         else if (!thing.def.alwaysHaulable && nonFactionThings) tempNonFactionThings.Add(thingData);
@@ -129,7 +131,7 @@ namespace GameClient
                 {
                     if (ScribeHelper.CheckIfThingIsHuman(thing))
                     {
-                        HumanFile humanData = HumanScriber.ToString(thing as Pawn);
+                        HumanFile humanData = HumanScriber.HumanToString(thing as Pawn);
 
                         if (thing.Faction == Faction.OfPlayer && factionHumans) tempFactionHumans.Add(humanData);
                         else if (thing.Faction != Faction.OfPlayer && nonFactionHumans) tempNonFactionHumans.Add(humanData);
@@ -153,7 +155,7 @@ namespace GameClient
                 {
                     if (ScribeHelper.CheckIfThingIsAnimal(thing))
                     {
-                        AnimalFile animalData = AnimalScriber.ToString(thing as Pawn);
+                        AnimalFile animalData = AnimalScriber.AnimalToString(thing as Pawn);
 
                         if (thing.Faction == Faction.OfPlayer && factionAnimals) tempFactionAnimals.Add(animalData);
                         else if (thing.Faction != Faction.OfPlayer && nonFactionAnimals) tempNonFactionAnimals.Add(animalData);
@@ -169,6 +171,12 @@ namespace GameClient
         private static void GetMapWeather(MapFile mapFile, Map map)
         {
             try { mapFile.CurWeatherDefName = map.weatherManager.curWeather.defName; }
+            catch (Exception e) { Logger.Warning(e.ToString(), CommonEnumerators.LogImportanceMode.Verbose); }
+        }
+
+        private static void GetMapMods(MapFile mapFile)
+        {
+            try { mapFile.Mods = ModManagerHelper.GetRunningModList(); }
             catch (Exception e) { Logger.Warning(e.ToString(), CommonEnumerators.LogImportanceMode.Verbose); }
         }
 
@@ -242,7 +250,7 @@ namespace GameClient
                     {
                         try
                         {
-                            Thing toGet = ThingScriber.FromString(item, overrideID);
+                            Thing toGet = ThingScriber.StringToThing(item, overrideID);
 
                             if (lessLoot)
                             {
@@ -261,7 +269,7 @@ namespace GameClient
                     {
                         try
                         {
-                            Thing toGet = ThingScriber.FromString(item, overrideID);
+                            Thing toGet = ThingScriber.StringToThing(item, overrideID);
                             thingsToGetInThisTile.Add(toGet);
                         }
                         catch (Exception e) { Logger.Warning(e.ToString(), CommonEnumerators.LogImportanceMode.Verbose); }
@@ -291,7 +299,7 @@ namespace GameClient
                     {
                         try
                         {
-                            Pawn human = HumanScriber.FromString(pawn, overrideID);
+                            Pawn human = HumanScriber.StringtoHuman(pawn, overrideID);
                             human.SetFaction(FactionValues.neutralPlayer);
 
                             GenSpawn.Spawn(human, human.Position, map, human.Rotation);
@@ -306,7 +314,7 @@ namespace GameClient
                     {
                         try
                         {
-                            Pawn human = HumanScriber.FromString(pawn, overrideID);
+                            Pawn human = HumanScriber.StringtoHuman(pawn, overrideID);
                             GenSpawn.Spawn(human, human.Position, map, human.Rotation);
                         }
                         catch (Exception e) { Logger.Warning(e.ToString(), CommonEnumerators.LogImportanceMode.Verbose); }
@@ -326,7 +334,7 @@ namespace GameClient
                     {
                         try
                         {
-                            Pawn animal = AnimalScriber.FromString(pawn, overrideID);
+                            Pawn animal = AnimalScriber.StringToAnimal(pawn, overrideID);
                             animal.SetFaction(FactionValues.neutralPlayer);
 
                             GenSpawn.Spawn(animal, animal.Position, map, animal.Rotation);
@@ -341,7 +349,7 @@ namespace GameClient
                     {
                         try
                         {
-                            Pawn animal = AnimalScriber.FromString(pawn, overrideID);
+                            Pawn animal = AnimalScriber.StringToAnimal(pawn, overrideID);
                             GenSpawn.Spawn(animal, animal.Position, map, animal.Rotation);
                         }
                         catch (Exception e) { Logger.Warning(e.ToString(), CommonEnumerators.LogImportanceMode.Verbose); }

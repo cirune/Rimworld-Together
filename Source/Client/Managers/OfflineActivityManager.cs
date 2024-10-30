@@ -120,14 +120,10 @@ namespace GameClient
             Action r1 = delegate 
             {
                 if (SessionValues.latestOfflineActivity == OfflineActivityType.Spy) SaveManager.ForceSave();
-                PrepareMapForOfflineActivity(offlineVisitData._mapFile); 
+                PrepareMapForOfflineActivity(Serializer.ConvertBytesToObject<MapFile>(offlineVisitData._compressedFile.Contents, false)); 
             };
 
-            if (ModManagerHelper.CheckIfMapHasConflictingMods(offlineVisitData._mapFile))
-            {
-                DialogManager.PushNewDialog(new RT_Dialog_YesNo("Map received but contains unknown mod data, continue?", r1, null));
-            }
-            else r1.Invoke();
+            r1.Invoke();
         }
 
         //Prepares a map for the offline visit feature from a request

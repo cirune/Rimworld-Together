@@ -179,7 +179,7 @@ namespace GameClient
 
             Action r1 = delegate
             {
-                Pawn pawnToRetrieve = HumanScriber.FromString(siteData._siteFile.WorkerData);
+                Pawn pawnToRetrieve = HumanScriber.StringtoHuman(siteData._siteFile.WorkerData);
 
                 RimworldManager.PlaceThingIntoCaravan(pawnToRetrieve, SessionValues.chosenCaravan);
 
@@ -219,7 +219,7 @@ namespace GameClient
             SiteData siteData = new SiteData();
             siteData._siteFile.Tile = SessionValues.chosenSite.Tile;
             siteData._stepMode = SiteStepMode.Deposit;
-            siteData._siteFile.WorkerData = HumanScriber.ToString(pawnToSend);
+            siteData._siteFile.WorkerData = HumanScriber.HumanToString(pawnToSend);
 
             Packet packet = Packet.CreatePacketFromObject(nameof(SiteManager), siteData);
             Network.listener.EnqueuePacket(packet);

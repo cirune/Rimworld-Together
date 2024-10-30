@@ -18,7 +18,7 @@ namespace Shared
 
         //Serialize from and to byte array
 
-        public static byte[] ConvertObjectToBytes(object toConvert)
+        public static byte[] ConvertObjectToBytes(object toConvert, bool compression = false)
         {
             JsonSerializer serializer = JsonSerializer.Create(DefaultSettings);
             MemoryStream memoryStream = new MemoryStream();
@@ -28,20 +28,19 @@ namespace Shared
                 serializer.Serialize(writer, toConvert); 
             }
 
-            return GZip.Compress(memoryStream.ToArray());
+            if (compression) return GZip.Compress(memoryStream.ToArray());
+            else return memoryStream.ToArray();
         }
 
-        public static T ConvertBytesToObject<T>(byte[] bytes)
+        public static T ConvertBytesToObject<T>(byte[] bytes, bool compression = true)
         {
-            bytes = GZip.Decompress(bytes);
+            if (compression) bytes = GZip.Decompress(bytes);
 
             JsonSerializer serializer = JsonSerializer.Create(DefaultSettings);
             MemoryStream memoryStream = new MemoryStream(bytes);
 
-            using (BsonReader reader = new BsonReader(memoryStream)) 
-            { 
-                return serializer.Deserialize<T>(reader); 
-            }
+            using BsonReader reader = new BsonReader(memoryStream);
+            return serializer.Deserialize<T>(reader);
         }
 
         public static string SerializeToString(object serializable) { return JsonConvert.SerializeObject(serializable, DefaultSettings); }
@@ -53,5 +52,9 @@ namespace Shared
         public static void SerializeToFile(string path, object serializable) { File.WriteAllText(path, JsonConvert.SerializeObject(serializable, IndentedSettings)); }
 
         public static T SerializeFromFile<T>(string path) { return JsonConvert.DeserializeObject<T>(File.ReadAllText(path), DefaultSettings); }
+
+        public static void ObjectBytesToFile(string path, object serializable) { File.WriteAllBytes(path, ConvertObjectToBytes(serializable, true)); }
+
+        public static T FileBytesToObject<T>(string path) { return ConvertBytesToObject<T>(File.ReadAllBytes(path)); }
     }
 }

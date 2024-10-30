@@ -11,7 +11,7 @@ namespace GameClient
 {
     public static class HumanScriber
     {
-        public static HumanFile ToString(Pawn human)
+        public static HumanFile HumanToString(Pawn human)
         {
             HumanFile humanFile = new HumanFile();
 
@@ -22,7 +22,7 @@ namespace GameClient
             return humanFile;
         }
 
-        public static Pawn FromString(HumanFile file, bool overrideID = false)
+        public static Pawn StringtoHuman(HumanFile file, bool overrideID = false)
         {
             return (Pawn)RTScriber.ScribeToThing(file.ScribeData, overrideID);
         }

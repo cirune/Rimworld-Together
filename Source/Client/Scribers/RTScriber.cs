@@ -21,7 +21,7 @@ namespace GameClient
             Scribe.saver.FinalizeSaving();
 
             if (customCount != -1) toSave.stackCount = originalCount;
-            
+
             return File.ReadAllText(Path.Combine(Master.scribeFolderPath, "LatestSentScribe.xml"));
         }
 

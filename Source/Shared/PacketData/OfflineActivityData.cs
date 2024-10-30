@@ -10,6 +10,6 @@ namespace Shared
 
         public int _targetTile;
         
-        public MapFile _mapFile;
+        public CompressedFile _compressedFile;
     }
 }

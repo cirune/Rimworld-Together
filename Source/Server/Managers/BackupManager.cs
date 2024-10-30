@@ -85,9 +85,6 @@ namespace GameServer
                 string userSavePath = Path.Combine(Master.savesPath, username + SaveManager.fileExtension);
                 if (File.Exists(userSavePath)) toArchive.Add(userSavePath);
 
-                MapFile[] userMaps = MapManager.GetAllMapsFromUsername(username);
-                foreach (MapFile map in userMaps) toArchive.Add(Path.Combine(Master.mapsPath, map.Tile + MapManager.fileExtension));
-
                 SiteFile[] playerSites = SiteManagerHelper.GetAllSitesFromUsername(username);
                 foreach (SiteFile site in playerSites) toArchive.Add(Path.Combine(Master.sitesPath, site.Tile + SiteManagerHelper.fileExtension));
 

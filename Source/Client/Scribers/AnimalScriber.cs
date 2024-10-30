@@ -9,7 +9,7 @@ namespace GameClient
 {
     public static class AnimalScriber
     {
-        public static AnimalFile ToString(Pawn animal)
+        public static AnimalFile AnimalToString(Pawn animal)
         {
             AnimalFile animalData = new AnimalFile();
 
@@ -20,7 +20,7 @@ namespace GameClient
             return animalData;
         }
 
-        public static Pawn FromString(AnimalFile file, bool overrideID = false)
+        public static Pawn StringToAnimal(AnimalFile file, bool overrideID = false)
         {
             return (Pawn)RTScriber.ScribeToThing(file.ScribeData, overrideID);
         }

@@ -27,7 +27,7 @@ namespace Shared
             if (objectToUse == null) return new Packet(header, null, false);
             else
             {
-                byte[] contents = Serializer.ConvertObjectToBytes(objectToUse);
+                byte[] contents = Serializer.ConvertObjectToBytes(objectToUse, true);
                 return new Packet(header, contents, false);
             }
         }
@@ -37,7 +37,7 @@ namespace Shared
             if (objectToUse == null) return new Packet(header, null, true);
             else
             {
-                byte[] contents = Serializer.ConvertObjectToBytes(objectToUse);
+                byte[] contents = Serializer.ConvertObjectToBytes(objectToUse, true);
                 return new Packet(header, contents, true, targetPatchName);
             }
         }

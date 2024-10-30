@@ -11,7 +11,7 @@ namespace GameClient
 {
     public static class ThingScriber
     {
-        public static ThingFile ToString(Thing thing, int thingCount)
+        public static ThingFile ThingToString(Thing thing, int thingCount)
         {
             ThingFile thingData = new ThingFile();
 
@@ -22,7 +22,7 @@ namespace GameClient
             return thingData;
         }
 
-        public static Thing FromString(ThingFile thingData, bool overrideID = false)
+        public static Thing StringToThing(ThingFile thingData, bool overrideID = false)
         {
             return RTScriber.ScribeToThing(thingData.ScribeData, overrideID);
         }
