@@ -56,7 +56,7 @@ namespace GameClient
                     break;
 
                 case OnlineActivityStepMode.Buffer:
-                    OnlineActivityOrders.ReceiveBufferOrders(data);
+                    OnlineActivityOrders.ReceiveBufferOrder(data);
                     break;
             }
         }
@@ -640,12 +640,6 @@ namespace GameClient
             return pawnOrder;
         }
 
-        public static void ReceiveBufferOrders(OnlineActivityData data)
-        {
-            if (!CheckIfCanExecuteOrder()) return;
-            else OnlineActivityClock.ReceiveAllData(data);
-        }
-
         public static void ReceiveCreationOrder(CreationOrderData data)
         {
             if (!CheckIfCanExecuteOrder()) return;
@@ -875,6 +869,16 @@ namespace GameClient
             }
             catch (Exception e) { Logger.Warning($"Couldn't apply job order. Reason: {e}"); }
         }
+
+        public static void ReceiveBufferOrder(OnlineActivityData data)
+        {
+            if (!CheckIfCanExecuteOrder()) return;
+            else
+            {
+                Action toDo = delegate { OnlineActivityClock.ReceiveBufferData(data); };
+                Master.threadDispatcher.Enqueue(toDo);
+            }
+        }
     }
 
     public static class OnlineActivityQueues
@@ -914,11 +918,11 @@ namespace GameClient
 
         public static List<WeatherOrderData> weatherOrderBuffer = new List<WeatherOrderData>();
 
-        public static async Task StartClockTicker()
+        public static async Task StartBufferClock()
         {
             while (SessionValues.currentRealTimeActivity != OnlineActivityType.None)
             {
-                try { SendBufferData(); }
+                try { Master.threadDispatcher.Enqueue(SendBufferData); }
                 catch (Exception e) { Logger.Error($"Activity clock tick failed, this should never happen. Exception > {e}"); }
 
                 await Task.Delay(TimeSpan.FromMilliseconds(SessionValues.actionValues.OnlineActivityTickMS));
@@ -997,7 +1001,7 @@ namespace GameClient
             }
         }
 
-        public static void ReceiveAllData(OnlineActivityData data)
+        public static void ReceiveBufferData(OnlineActivityData data)
         {
             foreach (CreationOrderData order in data._creationOrders) OnlineActivityOrders.ReceiveCreationOrder(order);
             foreach (DestructionOrderData order in data._destructionOrders) OnlineActivityOrders.ReceiveDestructionOrder(order);
