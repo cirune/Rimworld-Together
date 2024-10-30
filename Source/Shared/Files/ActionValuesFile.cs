@@ -23,6 +23,10 @@ namespace Shared
 
         public bool EnableCustomScenarios = true;
 
+        public bool EnableNPCDestruction = false;
+
+        public bool EnablePollutionSpread = true;
+
         public int EnforcedGameSpeed = 0;
 
         public int SpyCost = 100;
