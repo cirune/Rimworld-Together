@@ -8,6 +8,8 @@ namespace Shared
 
     public static class Serializer
     {
+        // Variables
+
         private static JsonSerializerSettings DefaultSettings => new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.None };
 
         private static JsonSerializerSettings IndentedSettings => new JsonSerializerSettings() 
@@ -16,7 +18,7 @@ namespace Shared
             Formatting = Formatting.Indented
         };
 
-        //Serialize from and to byte array
+        //Serialize from and to byte arrays
 
         public static byte[] ConvertObjectToBytes(object toConvert, bool compression = false)
         {
@@ -43,15 +45,19 @@ namespace Shared
             return serializer.Deserialize<T>(reader);
         }
 
+        // Serialize from and to strings
+
         public static string SerializeToString(object serializable) { return JsonConvert.SerializeObject(serializable, DefaultSettings); }
 
         public static T SerializeFromString<T>(string serializable) { return JsonConvert.DeserializeObject<T>(serializable, DefaultSettings); }
 
-        //Serialize from and to files
+        // Serialize from and to files text
 
         public static void SerializeToFile(string path, object serializable) { File.WriteAllText(path, JsonConvert.SerializeObject(serializable, IndentedSettings)); }
 
         public static T SerializeFromFile<T>(string path) { return JsonConvert.DeserializeObject<T>(File.ReadAllText(path), DefaultSettings); }
+
+        // Serialize from and to file bytes
 
         public static void ObjectBytesToFile(string path, object serializable) { File.WriteAllBytes(path, ConvertObjectToBytes(serializable, true)); }
 
