@@ -305,7 +305,7 @@ namespace GameClient
 
             if (SessionValues.isActivityHost)
             {
-                foreach (Pawn pawn in OnlineActivityManager.activityMap.mapPawns.AllPawns.Where(fetch => fetch.Faction == Faction.OfPlayer && RTScriberHelper.CheckIfThingIsHuman(fetch)))
+                foreach (Pawn pawn in OnlineActivityManager.activityMap.mapPawns.AllPawns.Where(fetch => fetch.Faction == Faction.OfPlayer && ScriberHelper.CheckIfThingIsHuman(fetch)))
                 {
                     toGet.Add(HumanScriber.HumanToString(pawn));
                 }
@@ -313,7 +313,7 @@ namespace GameClient
 
             else
             {
-                foreach (Pawn pawn in SessionValues.chosenCaravan.PawnsListForReading.Where(fetch => RTScriberHelper.CheckIfThingIsHuman(fetch)))
+                foreach (Pawn pawn in SessionValues.chosenCaravan.PawnsListForReading.Where(fetch => ScriberHelper.CheckIfThingIsHuman(fetch)))
                 {
                     toGet.Add(HumanScriber.HumanToString(pawn));
                 }
@@ -328,7 +328,7 @@ namespace GameClient
 
             if (SessionValues.isActivityHost)
             {
-                foreach (Pawn pawn in OnlineActivityManager.activityMap.mapPawns.AllPawns.Where(fetch => fetch.Faction == Faction.OfPlayer && RTScriberHelper.CheckIfThingIsAnimal(fetch)))
+                foreach (Pawn pawn in OnlineActivityManager.activityMap.mapPawns.AllPawns.Where(fetch => fetch.Faction == Faction.OfPlayer && ScriberHelper.CheckIfThingIsAnimal(fetch)))
                 {
                     toGet.Add(AnimalScriber.AnimalToString(pawn));
                 }
@@ -336,7 +336,7 @@ namespace GameClient
 
             else
             {
-                foreach (Pawn pawn in SessionValues.chosenCaravan.PawnsListForReading.Where(fetch => fetch.Faction == Faction.OfPlayer && RTScriberHelper.CheckIfThingIsAnimal(fetch)))
+                foreach (Pawn pawn in SessionValues.chosenCaravan.PawnsListForReading.Where(fetch => fetch.Faction == Faction.OfPlayer && ScriberHelper.CheckIfThingIsAnimal(fetch)))
                 {
                     toGet.Add(AnimalScriber.AnimalToString(pawn));
                 }
@@ -392,8 +392,8 @@ namespace GameClient
                     if (target.Thing == null) targetTypeList.Add(ActionTargetType.Cell);
                     else
                     {
-                        if (RTScriberHelper.CheckIfThingIsHuman(target.Thing)) targetTypeList.Add(ActionTargetType.Human);
-                        else if (RTScriberHelper.CheckIfThingIsAnimal(target.Thing)) targetTypeList.Add(ActionTargetType.Animal);
+                        if (ScriberHelper.CheckIfThingIsHuman(target.Thing)) targetTypeList.Add(ActionTargetType.Human);
+                        else if (ScriberHelper.CheckIfThingIsAnimal(target.Thing)) targetTypeList.Add(ActionTargetType.Animal);
                         else targetTypeList.Add(ActionTargetType.Thing);
                     }
                 }
@@ -525,9 +525,9 @@ namespace GameClient
         {
             CreationOrderData creationOrder = new CreationOrderData();
 
-            if (RTScriberHelper.CheckIfThingIsHuman(thing)) creationOrder._creationType = CreationType.Human;
-            else if (RTScriberHelper.CheckIfThingIsAnimal(thing)) creationOrder._creationType = CreationType.Animal;
-            else if (RTScriberHelper.CheckIfThingIsCorpse(thing)) creationOrder._creationType = CreationType.Corpse;
+            if (ScriberHelper.CheckIfThingIsHuman(thing)) creationOrder._creationType = CreationType.Human;
+            else if (ScriberHelper.CheckIfThingIsAnimal(thing)) creationOrder._creationType = CreationType.Animal;
+            else if (ScriberHelper.CheckIfThingIsCorpse(thing)) creationOrder._creationType = CreationType.Corpse;
             else creationOrder._creationType = CreationType.Thing;
 
             // Modify position based on center cell because RimWorld doesn't store it by default
@@ -642,8 +642,6 @@ namespace GameClient
 
         public static void ReceiveCreationOrder(CreationOrderData data)
         {
-            if (!CheckIfCanExecuteOrder()) return;
-
             Thing toCreate = null;
 
             switch(data._creationType)
@@ -681,8 +679,6 @@ namespace GameClient
 
         public static void ReceiveDestructionOrder(DestructionOrderData data)
         {
-            if (!CheckIfCanExecuteOrder()) return;
-
             // If we receive a hash that doesn't exist or we are host we ignore it
             Thing toDestroy = OnlineActivityManagerHelper.GetThingFromID(data._thingHash);
             if (toDestroy != null && !SessionValues.isActivityHost)
@@ -694,8 +690,6 @@ namespace GameClient
 
         public static void ReceiveDamageOrder(DamageOrderData data)
         {
-            if (!CheckIfCanExecuteOrder()) return;
-
             try
             {
                 BodyPartRecord bodyPartRecord = new BodyPartRecord();
@@ -720,8 +714,6 @@ namespace GameClient
 
         public static void ReceiveHediffOrder(HediffOrderData data)
         {
-            if (!CheckIfCanExecuteOrder()) return;
-            
             try
             {
                 Pawn toTarget = null;
@@ -776,8 +768,6 @@ namespace GameClient
 
         public static void ReceiveGameConditionOrder(GameConditionOrderData data)
         {
-            if (!CheckIfCanExecuteOrder()) return;
-
             try
             {
                 GameCondition gameCondition = null;
@@ -804,8 +794,6 @@ namespace GameClient
 
         public static void ReceiveWeatherOrder(WeatherOrderData data)
         {
-            if (!CheckIfCanExecuteOrder()) return;
-
             try
             {
                 WeatherDef weatherDef = DefDatabase<WeatherDef>.AllDefs.First(fetch => fetch.defName == data._weatherDefName);
@@ -818,8 +806,6 @@ namespace GameClient
 
         public static void ReceiveTimeSpeedOrder(TimeSpeedOrderData data)
         {
-            if (!CheckIfCanExecuteOrder()) return;
-
             try
             {
                 OnlineActivityQueues.SetTimeSpeedQueue(data._targetTimeSpeed);
@@ -830,8 +816,6 @@ namespace GameClient
 
         public static void ReceiveJobOrder(PawnJobData data)
         {
-            if (!CheckIfCanExecuteOrder()) return;
-
             try
             {
                 Pawn pawn = OnlineActivityManagerHelper.GetPawnFromID(data._pawnId, OnlineActivityTargetFaction.NonFaction);

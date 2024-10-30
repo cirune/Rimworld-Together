@@ -222,7 +222,7 @@ namespace GameClient
 
                 foreach (Thing thing in map.listerThings.AllThings)
                 {
-                    if (!RTScriberHelper.CheckIfThingIsHuman(thing) && !RTScriberHelper.CheckIfThingIsAnimal(thing))
+                    if (!ScriberHelper.CheckIfThingIsHuman(thing) && !ScriberHelper.CheckIfThingIsAnimal(thing))
                     {
                         ThingFile thingData = ThingScriber.ThingToString(thing, thing.stackCount);
 
@@ -246,7 +246,7 @@ namespace GameClient
 
                 foreach (Thing thing in map.listerThings.AllThings)
                 {
-                    if (RTScriberHelper.CheckIfThingIsHuman(thing))
+                    if (ScriberHelper.CheckIfThingIsHuman(thing))
                     {
                         HumanFile humanData = HumanScriber.HumanToString(thing as Pawn);
 
@@ -270,7 +270,7 @@ namespace GameClient
 
                 foreach (Thing thing in map.listerThings.AllThings)
                 {
-                    if (RTScriberHelper.CheckIfThingIsAnimal(thing))
+                    if (ScriberHelper.CheckIfThingIsAnimal(thing))
                     {
                         AnimalFile animalData = AnimalScriber.AnimalToString(thing as Pawn);
 
@@ -503,7 +503,7 @@ namespace GameClient
         }
     }
 
-    public static class RTScriberHelper
+    public static class ScriberHelper
     {
         public static bool CheckIfThingIsHuman(Thing thing)
         {

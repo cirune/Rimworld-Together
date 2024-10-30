@@ -195,7 +195,7 @@ namespace GameClient
             List<string> pawnNames = new List<string>();
             foreach (Pawn pawn in pawns)
             {
-                if (RTScriberHelper.CheckIfThingIsHuman(pawn)) pawnNames.Add(pawn.Label);
+                if (ScriberHelper.CheckIfThingIsHuman(pawn)) pawnNames.Add(pawn.Label);
             }
 
             RT_Dialog_ListingWithButton d1 = new RT_Dialog_ListingWithButton("Pawn Selection", "Select the pawn you wish to send", 
@@ -210,7 +210,7 @@ namespace GameClient
             List<Pawn> caravanHumans = new List<Pawn>();
             foreach (Pawn pawn in caravanPawns)
             {
-                if (RTScriberHelper.CheckIfThingIsHuman(pawn)) caravanHumans.Add(pawn);
+                if (ScriberHelper.CheckIfThingIsHuman(pawn)) caravanHumans.Add(pawn);
             }
 
             Pawn pawnToSend = caravanHumans[DialogManager.dialogButtonListingResultInt];

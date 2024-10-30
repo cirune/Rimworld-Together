@@ -58,7 +58,7 @@ namespace GameClient
                     OnlineActivityClock.creationOrderBuffer.Add(order);
 
                     //KEEP ALWAYS AS AT THE BOTTOM AS POSSIBLE
-                    if (RTScriberHelper.CheckIfThingIsHuman(__instance) || RTScriberHelper.CheckIfThingIsAnimal(__instance)) 
+                    if (ScriberHelper.CheckIfThingIsHuman(__instance) || ScriberHelper.CheckIfThingIsAnimal(__instance)) 
                     {
                         OnlineActivityManagerHelper.AddPawnToMap((Pawn)__instance);
                     }
@@ -72,7 +72,7 @@ namespace GameClient
                     // IF COMING FROM HOST
                     if (OnlineActivityQueues.queuedThing == __instance)
                     {
-                        if (RTScriberHelper.CheckIfThingIsHuman(__instance) || RTScriberHelper.CheckIfThingIsAnimal(__instance)) 
+                        if (ScriberHelper.CheckIfThingIsHuman(__instance) || ScriberHelper.CheckIfThingIsAnimal(__instance)) 
                         {
                             OnlineActivityManagerHelper.AddPawnToMap((Pawn)__instance);
                         }
@@ -105,7 +105,7 @@ namespace GameClient
                     OnlineActivityClock.destructionOrderBuffer.Add(order);
 
                     //KEEP ALWAYS AS AT THE BOTTOM AS POSSIBLE
-                    if (RTScriberHelper.CheckIfThingIsHuman(__instance) || RTScriberHelper.CheckIfThingIsAnimal(__instance)) 
+                    if (ScriberHelper.CheckIfThingIsHuman(__instance) || ScriberHelper.CheckIfThingIsAnimal(__instance)) 
                     {
                         OnlineActivityManagerHelper.RemovePawnFromMap((Pawn)__instance);
                     }
@@ -119,7 +119,7 @@ namespace GameClient
                     // IF COMING FROM HOST
                     if (OnlineActivityQueues.queuedThing == __instance)
                     {
-                        if (RTScriberHelper.CheckIfThingIsHuman(__instance) || RTScriberHelper.CheckIfThingIsAnimal(__instance)) 
+                        if (ScriberHelper.CheckIfThingIsHuman(__instance) || ScriberHelper.CheckIfThingIsAnimal(__instance)) 
                         {
                             OnlineActivityManagerHelper.RemovePawnFromMap((Pawn)__instance);
                         }
