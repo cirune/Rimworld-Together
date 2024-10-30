@@ -49,12 +49,8 @@ namespace GameClient
             {
                 if (SessionValues.isActivityHost)
                 {
-                    OnlineActivityData OnlineActivityData = new OnlineActivityData();
-                    OnlineActivityData._stepMode = OnlineActivityStepMode.Create;
-                    OnlineActivityData._creationOrder = OnlineActivityOrders.CreateCreationOrder(__instance);
-
-                    Packet packet = Packet.CreatePacketFromObject(nameof(OnlineActivityManager), OnlineActivityData);
-                    Network.listener.EnqueuePacket(packet);
+                    CreationOrderData order = OnlineActivityOrders.CreateCreationOrder(__instance);
+                    OnlineActivityClock.creationOrderBuffer.Add(order);
 
                     //KEEP ALWAYS AS AT THE BOTTOM AS POSSIBLE
                     if (ScribeHelper.CheckIfThingIsHuman(__instance) || ScribeHelper.CheckIfThingIsAnimal(__instance)) 
@@ -100,12 +96,8 @@ namespace GameClient
             {
                 if (SessionValues.isActivityHost)
                 {
-                    OnlineActivityData onlineActivityData = new OnlineActivityData();
-                    onlineActivityData._stepMode = OnlineActivityStepMode.Destroy;
-                    onlineActivityData._destructionOrder = OnlineActivityOrders.CreateDestructionOrder(__instance);
-
-                    Packet packet = Packet.CreatePacketFromObject(nameof(OnlineActivityManager), onlineActivityData);
-                    Network.listener.EnqueuePacket(packet);
+                    DestructionOrderData order = OnlineActivityOrders.CreateDestructionOrder(__instance);
+                    OnlineActivityClock.destructionOrderBuffer.Add(order);
 
                     //KEEP ALWAYS AS AT THE BOTTOM AS POSSIBLE
                     if (ScribeHelper.CheckIfThingIsHuman(__instance) || ScribeHelper.CheckIfThingIsAnimal(__instance)) 
@@ -150,12 +142,8 @@ namespace GameClient
             {
                 if (SessionValues.isActivityHost)
                 {
-                    OnlineActivityData onlineActivityData = new OnlineActivityData();
-                    onlineActivityData._stepMode = OnlineActivityStepMode.Damage;
-                    onlineActivityData._damageOrder = OnlineActivityOrders.CreateDamageOrder(dinfo, __instance);
-
-                    Packet packet = Packet.CreatePacketFromObject(nameof(OnlineActivityManager), onlineActivityData);
-                    Network.listener.EnqueuePacket(packet);
+                    DamageOrderData order = OnlineActivityOrders.CreateDamageOrder(dinfo, __instance);
+                    OnlineActivityClock.damageOrderBuffer.Add(order);
                     return true;
                 }
 
@@ -193,12 +181,8 @@ namespace GameClient
             {
                 if (SessionValues.isActivityHost)
                 {
-                    OnlineActivityData onlineActivityData = new OnlineActivityData();
-                    onlineActivityData._stepMode = OnlineActivityStepMode.Hediff;
-                    onlineActivityData._hediffOrder = OnlineActivityOrders.CreateHediffOrder(hediff, ___pawn, OnlineActivityApplyMode.Add);
-
-                    Packet packet = Packet.CreatePacketFromObject(nameof(OnlineActivityManager), onlineActivityData);
-                    Network.listener.EnqueuePacket(packet);
+                    HediffOrderData order = OnlineActivityOrders.CreateHediffOrder(hediff, ___pawn, OnlineActivityApplyMode.Add);
+                    OnlineActivityClock.hediffOrderBuffer.Add(order);
                     return true;
                 }
 
@@ -230,12 +214,8 @@ namespace GameClient
             {
                 if (SessionValues.isActivityHost)
                 {
-                    OnlineActivityData onlineActivityData = new OnlineActivityData();
-                    onlineActivityData._stepMode = OnlineActivityStepMode.Hediff;
-                    onlineActivityData._hediffOrder = OnlineActivityOrders.CreateHediffOrder(hediff, ___pawn, OnlineActivityApplyMode.Remove);
-
-                    Packet packet = Packet.CreatePacketFromObject(nameof(OnlineActivityManager), onlineActivityData);
-                    Network.listener.EnqueuePacket(packet);
+                    HediffOrderData order = OnlineActivityOrders.CreateHediffOrder(hediff, ___pawn, OnlineActivityApplyMode.Remove);
+                    OnlineActivityClock.hediffOrderBuffer.Add(order);
                     return true;
                 }
 
@@ -266,12 +246,8 @@ namespace GameClient
             {
                 if (SessionValues.isActivityHost)
                 {
-                    OnlineActivityData OnlineActivityData = new OnlineActivityData();
-                    OnlineActivityData._stepMode = OnlineActivityStepMode.GameCondition;
-                    OnlineActivityData._gameConditionOrder = OnlineActivityOrders.CreateGameConditionOrder(cond, OnlineActivityApplyMode.Add);
-
-                    Packet packet = Packet.CreatePacketFromObject(nameof(OnlineActivityManager), OnlineActivityData);
-                    Network.listener.EnqueuePacket(packet);
+                    GameConditionOrderData order = OnlineActivityOrders.CreateGameConditionOrder(cond, OnlineActivityApplyMode.Add);
+                    OnlineActivityClock.gameConditionOrderBuffer.Add(order);
                     return true;
                 }
 
@@ -302,12 +278,8 @@ namespace GameClient
             {
                 if (SessionValues.isActivityHost)
                 {
-                    OnlineActivityData OnlineActivityData = new OnlineActivityData();
-                    OnlineActivityData._stepMode = OnlineActivityStepMode.GameCondition;
-                    OnlineActivityData._gameConditionOrder = OnlineActivityOrders.CreateGameConditionOrder(__instance, OnlineActivityApplyMode.Remove);
-
-                    Packet packet = Packet.CreatePacketFromObject(nameof(OnlineActivityManager), OnlineActivityData);
-                    Network.listener.EnqueuePacket(packet);
+                    GameConditionOrderData order = OnlineActivityOrders.CreateGameConditionOrder(__instance, OnlineActivityApplyMode.Remove);
+                    OnlineActivityClock.gameConditionOrderBuffer.Add(order);
                     return true;
                 }
 
@@ -338,14 +310,8 @@ namespace GameClient
             {
                 if (SessionValues.isActivityHost)
                 {
-                    OnlineActivityQueues.SetWeatherQueue(newWeather);
-
-                    OnlineActivityData onlineActivityData = new OnlineActivityData();
-                    onlineActivityData._stepMode = OnlineActivityStepMode.Weather;
-                    onlineActivityData._weatherOrder = OnlineActivityOrders.CreateWeatherOrder(newWeather);
-
-                    Packet packet = Packet.CreatePacketFromObject(nameof(OnlineActivityManager), onlineActivityData);
-                    Network.listener.EnqueuePacket(packet);
+                    WeatherOrderData order = OnlineActivityOrders.CreateWeatherOrder(newWeather);
+                    OnlineActivityClock.weatherOrderBuffer.Add(order);
                     return true;
                 }
 
@@ -380,12 +346,9 @@ namespace GameClient
                     {
                         OnlineActivityQueues.queuedTimeSpeed = (int)__instance.CurTimeSpeed;
 
-                        OnlineActivityData onlineActivityData = new OnlineActivityData();
-                        onlineActivityData._stepMode = OnlineActivityStepMode.TimeSpeed;
-                        onlineActivityData._timeSpeedOrder = OnlineActivityOrders.CreateTimeSpeedOrder();
-
-                        Packet packet = Packet.CreatePacketFromObject(nameof(OnlineActivityManager), onlineActivityData);
-                        Network.listener.EnqueuePacket(packet);
+                        TimeSpeedOrderData order = OnlineActivityOrders.CreateTimeSpeedOrder();
+                        OnlineActivityClock.timeSpeedOrderBuffer.Add(order);
+                        return true;
                     }
                 }
 
@@ -397,6 +360,8 @@ namespace GameClient
                     {
                         __instance.CurTimeSpeed = (TimeSpeed)OnlineActivityQueues.queuedTimeSpeed;
                     }
+
+                    return true;
                 }
 
                 return true;

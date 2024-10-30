@@ -55,36 +55,8 @@ namespace GameClient
                     OnActivityStop();
                     break;
 
-                case OnlineActivityStepMode.Jobs:
-                    OnlineActivityOrders.ReceiveJobOrder(data);
-                    break;
-
-                case OnlineActivityStepMode.Create:
-                    OnlineActivityOrders.ReceiveCreationOrder(data);
-                    break;
-
-                case OnlineActivityStepMode.Destroy:
-                    OnlineActivityOrders.ReceiveDestructionOrder(data);
-                    break;
-
-                case OnlineActivityStepMode.Damage:
-                    OnlineActivityOrders.ReceiveDamageOrder(data);
-                    break;
-
-                case OnlineActivityStepMode.Hediff:
-                    OnlineActivityOrders.ReceiveHediffOrder(data);
-                    break;
-
-                case OnlineActivityStepMode.GameCondition:
-                    OnlineActivityOrders.ReceiveGameConditionOrder(data);
-                    break;
-
-                case OnlineActivityStepMode.Weather:
-                    OnlineActivityOrders.ReceiveWeatherOrder(data);
-                    break;
-
-                case OnlineActivityStepMode.TimeSpeed:
-                    OnlineActivityOrders.ReceiveTimeSpeedOrder(data);
+                case OnlineActivityStepMode.Buffer:
+                    OnlineActivityOrders.ReceiveBufferOrders(data);
                     break;
             }
         }
@@ -151,8 +123,8 @@ namespace GameClient
                 CameraJumper.TryJump(nonFactionPawns[0].Position, activityMap);
 
                 data._mapFile = null;
-                data._stepMode = OnlineActivityStepMode.TimeSpeed;
-                data._timeSpeedOrder = OnlineActivityOrders.CreateTimeSpeedOrder();
+                data._stepMode = OnlineActivityStepMode.Buffer;
+                data._timeSpeedOrder = new TimeSpeedOrderData[] { OnlineActivityOrders.CreateTimeSpeedOrder() };
 
                 Packet packet = Packet.CreatePacketFromObject(nameof(OnlineActivityManager), data);
                 Network.listener.EnqueuePacket(packet);
@@ -392,7 +364,11 @@ namespace GameClient
         {
             while (SessionValues.currentRealTimeActivity != OnlineActivityType.None)
             {
-                try { GetPawnJobs(); }
+                try 
+                {  
+                    //GetPawnJobs();
+                    OnlineActivityClock.SendBufferData();
+                }
                 catch (Exception e) { Logger.Error($"Jobs tick failed, this should never happen. Exception > {e}"); }
 
                 await Task.Delay(TimeSpan.FromMilliseconds(SessionValues.actionValues.OnlineActivityTickMS));
@@ -411,7 +387,7 @@ namespace GameClient
             pawnOrderData._pawnOrders = ordersToGet.ToArray();
 
             OnlineActivityData onlineActivityData = new OnlineActivityData();
-            onlineActivityData._stepMode = OnlineActivityStepMode.Jobs;
+            onlineActivityData._stepMode = OnlineActivityStepMode.Buffer;
             onlineActivityData._pawnOrder = pawnOrderData;
 
             Packet packet = Packet.CreatePacketFromObject(nameof(OnlineActivityManager), onlineActivityData);
@@ -420,7 +396,7 @@ namespace GameClient
 
         public static void SetPawnJobs(OnlineActivityData data)
         {
-            foreach(PawnOrderComponent component in data._pawnOrder._pawnOrders)
+            foreach (PawnOrderComponent component in data._pawnOrder._pawnOrders)
             {
                 Pawn pawn = OnlineActivityManagerHelper.GetPawnFromID(component._pawnId, OnlineActivityTargetFaction.NonFaction);
                 IntVec3 jobPosition = ValueParser.ArrayToIntVec3(component._transformComponent.Position);
@@ -746,37 +722,41 @@ namespace GameClient
             return timeSpeedOrder;
         }
 
-        public static void ReceiveJobOrder(OnlineActivityData data)
+        public static void ReceiveBufferOrders(OnlineActivityData data)
         {
             if (!CheckIfCanExecuteOrder()) return;
-            else OnlineActivityJobs.SetPawnJobs(data);
+            else
+            {
+                OnlineActivityJobs.SetPawnJobs(data);
+                OnlineActivityClock.ReceiveAllData(data);
+            }
         }
 
-        public static void ReceiveCreationOrder(OnlineActivityData data)
+        public static void ReceiveCreationOrder(CreationOrderData data)
         {
             if (!CheckIfCanExecuteOrder()) return;
 
             Thing toCreate = null;
 
-            switch(data._creationOrder._creationType)
+            switch(data._creationType)
             {
                 case CreationType.Human:
-                    HumanFile humanData = Serializer.ConvertBytesToObject<HumanFile>(data._creationOrder._dataToCreate, false);
+                    HumanFile humanData = Serializer.ConvertBytesToObject<HumanFile>(data._dataToCreate, false);
                     toCreate = HumanScriber.StringtoHuman(humanData, true);
                     break;
 
                 case CreationType.Animal:
-                    AnimalFile animalData = Serializer.ConvertBytesToObject<AnimalFile>(data._creationOrder._dataToCreate, false);
+                    AnimalFile animalData = Serializer.ConvertBytesToObject<AnimalFile>(data._dataToCreate, false);
                     toCreate = AnimalScriber.StringToAnimal(animalData, true);
                     break;
 
                 case CreationType.Corpse:
-                    ThingFile corpseData = Serializer.ConvertBytesToObject<ThingFile>(data._creationOrder._dataToCreate, false);
+                    ThingFile corpseData = Serializer.ConvertBytesToObject<ThingFile>(data._dataToCreate, false);
                     toCreate = ThingScriber.StringToThing(corpseData, true);
                     break;
 
                 case CreationType.Thing:
-                    ThingFile thingData = Serializer.ConvertBytesToObject<ThingFile>(data._creationOrder._dataToCreate, false);
+                    ThingFile thingData = Serializer.ConvertBytesToObject<ThingFile>(data._dataToCreate, false);
                     toCreate = ThingScriber.StringToThing(thingData, true);
                     break;
             }
@@ -791,12 +771,12 @@ namespace GameClient
             }
         }
 
-        public static void ReceiveDestructionOrder(OnlineActivityData data)
+        public static void ReceiveDestructionOrder(DestructionOrderData data)
         {
             if (!CheckIfCanExecuteOrder()) return;
 
             // If we receive a hash that doesn't exist or we are host we ignore it
-            Thing toDestroy = OnlineActivityManagerHelper.GetThingFromID(data._destructionOrder._thingHash);
+            Thing toDestroy = OnlineActivityManagerHelper.GetThingFromID(data._thingHash);
             if (toDestroy != null && !SessionValues.isActivityHost)
             {
                 OnlineActivityQueues.SetThingQueue(toDestroy);
@@ -804,23 +784,23 @@ namespace GameClient
             }
         }
 
-        public static void ReceiveDamageOrder(OnlineActivityData data)
+        public static void ReceiveDamageOrder(DamageOrderData data)
         {
             if (!CheckIfCanExecuteOrder()) return;
 
             try
             {
                 BodyPartRecord bodyPartRecord = new BodyPartRecord();
-                bodyPartRecord.def = DefDatabase<BodyPartDef>.AllDefs.FirstOrDefault(fetch => fetch.defName == data._damageOrder._hitPartDefName);
+                bodyPartRecord.def = DefDatabase<BodyPartDef>.AllDefs.FirstOrDefault(fetch => fetch.defName == data._hitPartDefName);
 
-                DamageDef damageDef = DefDatabase<DamageDef>.AllDefs.FirstOrDefault(fetch => fetch.defName == data._damageOrder._defName);
-                ThingDef thingDef = DefDatabase<ThingDef>.AllDefs.FirstOrDefault(fetch => fetch.defName == data._damageOrder._weaponDefName);
+                DamageDef damageDef = DefDatabase<DamageDef>.AllDefs.FirstOrDefault(fetch => fetch.defName == data._defName);
+                ThingDef thingDef = DefDatabase<ThingDef>.AllDefs.FirstOrDefault(fetch => fetch.defName == data._weaponDefName);
 
-                DamageInfo damageInfo = new DamageInfo(damageDef, data._damageOrder._damageAmount, data._damageOrder._armorPenetration, -1, null, bodyPartRecord, thingDef);
-                damageInfo.SetIgnoreArmor(data._damageOrder._ignoreArmor);
+                DamageInfo damageInfo = new DamageInfo(damageDef, data._damageAmount, data._armorPenetration, -1, null, bodyPartRecord, thingDef);
+                damageInfo.SetIgnoreArmor(data._ignoreArmor);
 
                 // If we receive a hash that doesn't exist or we are host we ignore it
-                Thing toApplyTo = OnlineActivityManagerHelper.GetThingFromID(data._damageOrder.targetHash);
+                Thing toApplyTo = OnlineActivityManagerHelper.GetThingFromID(data.targetHash);
                 if (toApplyTo != null && !SessionValues.isActivityHost)
                 {
                     OnlineActivityQueues.SetThingQueue(toApplyTo);
@@ -830,39 +810,39 @@ namespace GameClient
             catch (Exception e) { Logger.Warning($"Couldn't apply damage order. Reason: {e}"); }
         }
 
-        public static void ReceiveHediffOrder(OnlineActivityData data)
+        public static void ReceiveHediffOrder(HediffOrderData data)
         {
             if (!CheckIfCanExecuteOrder()) return;
             
             try
             {
                 Pawn toTarget = null;
-                if (data._hediffOrder._pawnFaction == OnlineActivityTargetFaction.Faction) toTarget = OnlineActivityManagerHelper.GetPawnFromID(data._hediffOrder.targetID, OnlineActivityTargetFaction.Faction);
-                else toTarget = OnlineActivityManagerHelper.GetPawnFromID(data._hediffOrder.targetID, OnlineActivityTargetFaction.NonFaction);
+                if (data._pawnFaction == OnlineActivityTargetFaction.Faction) toTarget = OnlineActivityManagerHelper.GetPawnFromID(data.targetID, OnlineActivityTargetFaction.Faction);
+                else toTarget = OnlineActivityManagerHelper.GetPawnFromID(data.targetID, OnlineActivityTargetFaction.NonFaction);
 
                 // If we receive a hash that doesn't exist or we are host we ignore it
                 if (toTarget != null && !SessionValues.isActivityHost)
                 {
                     OnlineActivityQueues.SetThingQueue(toTarget);
 
-                    BodyPartRecord bodyPartRecord = toTarget.RaceProps.body.AllParts.FirstOrDefault(fetch => fetch.def.defName == data._hediffOrder._hediffComponent.PartDefName &&
-                        fetch.Label == data._hediffOrder._hediffComponent.PartLabel);
+                    BodyPartRecord bodyPartRecord = toTarget.RaceProps.body.AllParts.FirstOrDefault(fetch => fetch.def.defName == data._hediffComponent.PartDefName &&
+                        fetch.Label == data._hediffComponent.PartLabel);
 
-                    if (data._hediffOrder._applyMode == OnlineActivityApplyMode.Add)
+                    if (data._applyMode == OnlineActivityApplyMode.Add)
                     {
-                        HediffDef hediffDef = DefDatabase<HediffDef>.AllDefs.First(fetch => fetch.defName == data._hediffOrder._hediffComponent.DefName);
+                        HediffDef hediffDef = DefDatabase<HediffDef>.AllDefs.First(fetch => fetch.defName == data._hediffComponent.DefName);
                         Hediff toMake = HediffMaker.MakeHediff(hediffDef, toTarget, bodyPartRecord);
                         
-                        if (data._hediffOrder._hediffComponent.WeaponDefName != null)
+                        if (data._hediffComponent.WeaponDefName != null)
                         {
-                            ThingDef source = DefDatabase<ThingDef>.AllDefs.First(fetch => fetch.defName == data._hediffOrder._hediffComponent.WeaponDefName);
+                            ThingDef source = DefDatabase<ThingDef>.AllDefs.First(fetch => fetch.defName == data._hediffComponent.WeaponDefName);
                             toMake.sourceDef = source;
                             toMake.sourceLabel = source.label;
                         }
 
-                        toMake.Severity = data._hediffOrder._hediffComponent.Severity;
+                        toMake.Severity = data._hediffComponent.Severity;
 
-                        if (data._hediffOrder._hediffComponent.IsPermanent)
+                        if (data._hediffComponent.IsPermanent)
                         {
                             HediffComp_GetsPermanent hediffComp = toMake.TryGetComp<HediffComp_GetsPermanent>();
                             hediffComp.IsPermanent = true;
@@ -871,12 +851,12 @@ namespace GameClient
                         toTarget.health.AddHediff(toMake, bodyPartRecord);
                     }
 
-                    else if (data._hediffOrder._applyMode == OnlineActivityApplyMode.Remove)
+                    else if (data._applyMode == OnlineActivityApplyMode.Remove)
                     {
                         // FIX ME
                         // Currently doesn't target WholeBody
 
-                        Hediff hediff = toTarget.health.hediffSet.hediffs.First(fetch => fetch.def.defName == data._hediffOrder._hediffComponent.DefName &&
+                        Hediff hediff = toTarget.health.hediffSet.hediffs.First(fetch => fetch.def.defName == data._hediffComponent.DefName &&
                             fetch.Part.def.defName == bodyPartRecord.def.defName && fetch.Part.Label == bodyPartRecord.Label);
 
                         toTarget.health.RemoveHediff(hediff);
@@ -886,7 +866,7 @@ namespace GameClient
             catch (Exception e) { Logger.Warning($"Couldn't apply hediff order. Reason: {e}"); }
         }
 
-        public static void ReceiveGameConditionOrder(OnlineActivityData data)
+        public static void ReceiveGameConditionOrder(GameConditionOrderData data)
         {
             if (!CheckIfCanExecuteOrder()) return;
 
@@ -894,11 +874,11 @@ namespace GameClient
             {
                 GameCondition gameCondition = null;
 
-                if (data._gameConditionOrder._applyMode == OnlineActivityApplyMode.Add)
+                if (data._applyMode == OnlineActivityApplyMode.Add)
                 {
-                    GameConditionDef conditionDef = DefDatabase<GameConditionDef>.AllDefs.First(fetch => fetch.defName == data._gameConditionOrder._conditionDefName);
+                    GameConditionDef conditionDef = DefDatabase<GameConditionDef>.AllDefs.First(fetch => fetch.defName == data._conditionDefName);
                     gameCondition = GameConditionMaker.MakeCondition(conditionDef);
-                    gameCondition.Duration = data._gameConditionOrder._duration;
+                    gameCondition.Duration = data._duration;
 
                     OnlineActivityQueues.SetGameConditionQueue(gameCondition);
                     Find.World.gameConditionManager.RegisterCondition(gameCondition);
@@ -906,7 +886,7 @@ namespace GameClient
 
                 else
                 {
-                    gameCondition = Find.World.gameConditionManager.ActiveConditions.First(fetch => fetch.def.defName == data._gameConditionOrder._conditionDefName);
+                    gameCondition = Find.World.gameConditionManager.ActiveConditions.First(fetch => fetch.def.defName == data._conditionDefName);
                     OnlineActivityQueues.SetGameConditionQueue(gameCondition);
                     gameCondition.End();
                 }
@@ -914,13 +894,13 @@ namespace GameClient
             catch (Exception e) { Logger.Warning($"Couldn't apply game condition order. Reason: {e}"); }
         }
 
-        public static void ReceiveWeatherOrder(OnlineActivityData data)
+        public static void ReceiveWeatherOrder(WeatherOrderData data)
         {
             if (!CheckIfCanExecuteOrder()) return;
 
             try
             {
-                WeatherDef weatherDef = DefDatabase<WeatherDef>.AllDefs.First(fetch => fetch.defName == data._weatherOrder._weatherDefName);
+                WeatherDef weatherDef = DefDatabase<WeatherDef>.AllDefs.First(fetch => fetch.defName == data._weatherDefName);
 
                 OnlineActivityQueues.SetWeatherQueue(weatherDef);
                 OnlineActivityManager.activityMap.weatherManager.TransitionTo(weatherDef);
@@ -928,14 +908,14 @@ namespace GameClient
             catch (Exception e) { Logger.Warning($"Couldn't apply weather order. Reason: {e}"); }
         }
 
-        public static void ReceiveTimeSpeedOrder(OnlineActivityData data)
+        public static void ReceiveTimeSpeedOrder(TimeSpeedOrderData data)
         {
             if (!CheckIfCanExecuteOrder()) return;
 
             try
             {
-                OnlineActivityQueues.SetTimeSpeedQueue(data._timeSpeedOrder._targetTimeSpeed);
-                RimworldManager.SetGameTicks(data._timeSpeedOrder._targetMapTicks);
+                OnlineActivityQueues.SetTimeSpeedQueue(data._targetTimeSpeed);
+                RimworldManager.SetGameTicks(data._targetMapTicks);
             }
             catch (Exception e) { Logger.Warning($"Couldn't apply time speed order. Reason: {e}"); }
         }
@@ -958,6 +938,64 @@ namespace GameClient
         public static void SetWeatherQueue(WeatherDef toSetTo) { queuedWeather = toSetTo; }
 
         public static void SetTimeSpeedQueue(int toSetTo) { queuedTimeSpeed = toSetTo; }
+    }
+
+    public static class OnlineActivityClock
+    {
+        public static List<CreationOrderData> creationOrderBuffer = new List<CreationOrderData>();
+
+        public static List<DestructionOrderData> destructionOrderBuffer = new List<DestructionOrderData>();
+
+        public static List<DamageOrderData> damageOrderBuffer = new List<DamageOrderData>();
+
+        public static List<HediffOrderData> hediffOrderBuffer = new List<HediffOrderData>();
+
+        public static List<TimeSpeedOrderData> timeSpeedOrderBuffer = new List<TimeSpeedOrderData>();
+
+        public static List<GameConditionOrderData> gameConditionOrderBuffer = new List<GameConditionOrderData>();
+
+        public static List<WeatherOrderData> weatherOrderBuffer = new List<WeatherOrderData>();
+
+        public static void SendBufferData()
+        {
+            OnlineActivityData onlineActivityData = new OnlineActivityData();
+            onlineActivityData._stepMode = OnlineActivityStepMode.Buffer;
+
+            onlineActivityData._creationOrder = creationOrderBuffer.ToArray();
+            creationOrderBuffer.Clear();
+
+            onlineActivityData._destructionOrder = destructionOrderBuffer.ToArray();
+            destructionOrderBuffer.Clear();
+
+            onlineActivityData._damageOrder = damageOrderBuffer.ToArray();
+            damageOrderBuffer.Clear();
+
+            onlineActivityData._hediffOrder = hediffOrderBuffer.ToArray();
+            hediffOrderBuffer.Clear();
+
+            onlineActivityData._timeSpeedOrder = timeSpeedOrderBuffer.ToArray();
+            timeSpeedOrderBuffer.Clear();
+
+            onlineActivityData._gameConditionOrder = gameConditionOrderBuffer.ToArray();
+            gameConditionOrderBuffer.Clear();
+
+            onlineActivityData._weatherOrder = weatherOrderBuffer.ToArray();
+            weatherOrderBuffer.Clear();
+
+            Packet packet = Packet.CreatePacketFromObject(nameof(OnlineActivityManager), onlineActivityData);
+            Network.listener.EnqueuePacket(packet);
+        }
+
+        public static void ReceiveAllData(OnlineActivityData data)
+        {
+            foreach (CreationOrderData order in data._creationOrder) OnlineActivityOrders.ReceiveCreationOrder(order);
+            foreach (DestructionOrderData order in data._destructionOrder) OnlineActivityOrders.ReceiveDestructionOrder(order);
+            foreach (DamageOrderData order in data._damageOrder) OnlineActivityOrders.ReceiveDamageOrder(order);
+            foreach (HediffOrderData order in data._hediffOrder) OnlineActivityOrders.ReceiveHediffOrder(order);
+            foreach (TimeSpeedOrderData order in data._timeSpeedOrder) OnlineActivityOrders.ReceiveTimeSpeedOrder(order);
+            foreach (GameConditionOrderData order in data._gameConditionOrder) OnlineActivityOrders.ReceiveGameConditionOrder(order);
+            foreach (WeatherOrderData order in data._weatherOrder) OnlineActivityOrders.ReceiveWeatherOrder(order);
+        }
     }
 
     public static class OnlineActivityPatches
