@@ -50,7 +50,7 @@ namespace Shared
 
         public static Type GetTypeFromName(Assembly assembly, string typeName)
         {
-            return assembly.GetType($"{GetAssemblyName(assembly)}.{typeName}");
+            return assembly.GetTypes().FirstOrDefault(T => T.Name == typeName);
         }
 
         public static MethodInfo GetMethodFromName(Type methodType, string methodName)
