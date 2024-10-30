@@ -5,6 +5,7 @@ using Shared;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 using System.Threading;
@@ -27,8 +28,8 @@ namespace GameClient
             [HarmonyTranspiler]
             public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
             {
-                var codes = new List<CodeInstruction>(instructions);
-                var method = AccessTools.Method(typeof(PatchAddPollution), nameof(StoreNumValue));
+                List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+                MethodInfo method = AccessTools.Method(typeof(PatchAddPollution), nameof(StoreNumValue));
 
                 for (int i = 0; i < codes.Count; i++)
                 {
