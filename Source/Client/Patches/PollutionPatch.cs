@@ -50,7 +50,11 @@ namespace GameClient
             [HarmonyPostfix]
             public static void DoPost(float pollutionAmount)
             {
-                if (addedByServer) return;
+                if (addedByServer)
+                {
+                    addedByServer = false;
+                    return;
+                }
                 if (Network.state == ClientNetworkState.Disconnected) return;
 
                 int id = lastPollutedTile;
