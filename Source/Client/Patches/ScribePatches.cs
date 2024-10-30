@@ -84,6 +84,45 @@ namespace GameClient
     //Find a way to handle scribe errors better than this
     //For real
 
+    [HarmonyPatch(typeof(PawnTextureAtlas), nameof(PawnTextureAtlas.GC))]
+    public static class PatchAtlas
+    {
+        [HarmonyPrefix]
+        public static bool DoPre(ref Dictionary<Pawn, PawnTextureAtlasFrameSet> ___frameAssignments, ref List<Pawn> ___tmpPawnsToFree, ref List<PawnTextureAtlasFrameSet> ___freeFrameSets)
+        {
+            if (Network.state == ClientNetworkState.Disconnected) return true;
+            else
+            {
+                try
+                {
+                    foreach (Pawn key in ___frameAssignments.Keys)
+                    {
+                        if (!key.SpawnedOrAnyParentSpawned)
+                        {
+                            ___tmpPawnsToFree.Add(key);
+                        }
+                    }
+
+                    foreach (Pawn item in ___tmpPawnsToFree)
+                    {
+                        ___freeFrameSets.Add(___frameAssignments[item]);
+                        ___frameAssignments.Remove(item);
+                    }
+                }
+                
+                catch (Exception e) 
+                { 
+                    ___frameAssignments.Clear();
+                    Logger.Error(e.ToString(), LogImportanceMode.Extreme); 
+                }
+
+                ___tmpPawnsToFree.Clear();
+
+                return false;
+            }
+        }
+    }
+
     [HarmonyPatch(typeof(Log), nameof(Log.Warning))]
     public static class PatchWarning
     {

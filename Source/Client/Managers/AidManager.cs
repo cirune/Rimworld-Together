@@ -47,7 +47,7 @@ namespace GameClient
             aidData._fromTile = Find.AnyPlayerHomeMap.Tile;
             aidData._toTile = SessionValues.chosenSettlement.Tile;
 
-            Pawn toGet = RimworldManager.GetAllSettlementPawns(Faction.OfPlayer, false)[DialogManager.dialogButtonListingResultInt];
+            Pawn toGet = RimworldManager.GetAllSettlementsPawns(Faction.OfPlayer, false)[DialogManager.dialogButtonListingResultInt];
             aidData._humanData = HumanScriber.HumanToString(toGet);
             RimworldManager.RemovePawnFromGame(toGet);
 

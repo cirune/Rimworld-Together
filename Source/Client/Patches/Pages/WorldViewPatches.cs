@@ -144,7 +144,7 @@ namespace GameClient
                         if (SessionValues.actionValues.EnableAids)
                         {
                             List<string> pawnNames = new List<string>();
-                            foreach (Pawn pawn in RimworldManager.GetAllSettlementPawns(Faction.OfPlayer, false)) pawnNames.Add(pawn.LabelCapNoCount);
+                            foreach (Pawn pawn in RimworldManager.GetAllSettlementsPawns(Faction.OfPlayer, false)) pawnNames.Add(pawn.LabelCapNoCount);
                             DialogManager.PushNewDialog(new RT_Dialog_ListingWithButton("Aid menu", "Select the pawn you want to send for aid", 
                                 pawnNames.ToArray(), AidManager.SendAidRequest));
                         }
