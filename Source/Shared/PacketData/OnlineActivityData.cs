@@ -43,6 +43,6 @@ namespace Shared
 
         public WeatherOrderData[] _weatherOrders = new WeatherOrderData[0];
 
-        public PawnOrderData[] _pawnOrders = new PawnOrderData[0];
+        public PawnJobData[] _jobOrders = new PawnJobData[0];
     }
 }

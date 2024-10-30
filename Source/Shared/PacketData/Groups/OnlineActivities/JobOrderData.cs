@@ -4,7 +4,7 @@ using static Shared.CommonEnumerators;
 namespace Shared
 {
     [Serializable]
-    public class PawnOrderData
+    public class PawnJobData
     {
         public string _jobDefName;
 

@@ -354,72 +354,6 @@ namespace GameClient
 
     public static class OnlineActivityJobs
     {
-        public static void GetPawnJobs()
-        {
-            foreach (Pawn pawn in OnlineActivityManager.factionPawns.ToArray())
-            {
-                PawnOrderData toGet = GetPawnJob(pawn);
-                if (toGet != null) OnlineActivityClock.pawnOrderBuffer.Add(toGet);
-            }
-        }
-
-        public static void SetPawnJob(PawnOrderData data)
-        {
-            Pawn pawn = OnlineActivityManagerHelper.GetPawnFromID(data._pawnId, OnlineActivityTargetFaction.NonFaction);
-            IntVec3 jobPosition = ValueParser.ArrayToIntVec3(data._transformComponent.Position);
-            Rot4 jobRotation = ValueParser.IntToRot4(data._transformComponent.Rotation);
-
-            try
-            {
-                JobDef jobDef = RimworldManager.GetJobFromDef(data._jobDefName);
-                LocalTargetInfo targetA = SetActionTargetsFromString(data, 0);
-                LocalTargetInfo targetB = SetActionTargetsFromString(data, 1);
-                LocalTargetInfo targetC = SetActionTargetsFromString(data, 2);
-
-                Job newJob = RimworldManager.SetJobFromDef(jobDef, targetA, targetB, targetC);
-                newJob.count = data._jobThingCount;
-
-                if (CheckIfJobsAreTheSame(pawn.CurJob, newJob)) return;
-                else
-                {
-                    SetPawnTransform(pawn, jobPosition, jobRotation);
-                    SetPawnDraftState(pawn, data._isDrafted);
-
-                    OnlineActivityQueues.SetThingQueue(pawn);
-                    ChangeCurrentJob(pawn, newJob);
-                    ChangeJobSpeedIfNeeded(newJob);
-                }
-            }
-
-            // If the job fails to parse we still want to move the pawn around
-            catch
-            {
-                SetPawnTransform(pawn, jobPosition, jobRotation);
-                SetPawnDraftState(pawn, data._isDrafted);
-            }   
-        }
-
-        public static PawnOrderData GetPawnJob(Pawn pawn)
-        {
-            PawnOrderData pawnOrder = new PawnOrderData();
-            pawnOrder._pawnId = pawn.ThingID;
-
-            Job pawnJob = pawn.CurJob;
-            if (pawnJob == null) return null;
-
-            pawnOrder._jobDefName = pawnJob.def.defName;
-            pawnOrder._jobThingCount = pawnJob.count;
-            pawnOrder._targetComponent.targets = GetActionTargets(pawnJob);
-            pawnOrder._targetComponent.targetTypes = GetActionTypes(pawnJob);
-            pawnOrder._targetComponent.targetFactions = GetActionTargetFactions(pawnJob);
-
-            pawnOrder._isDrafted = GetPawnDraftState(pawn);
-            pawnOrder._transformComponent.Position = ValueParser.IntVec3ToArray(pawn.Position);
-            pawnOrder._transformComponent.Rotation = ValueParser.Rot4ToInt(pawn.Rotation);
-
-            return pawnOrder;
-        }
-
         public static string[] GetActionTargets(Job job)
         {
             List<string> targetInfoList = new List<string>();
@@ -522,7 +456,7 @@ namespace GameClient
             catch (Exception e) { Logger.Warning($"Couldn't apply pawn draft state for {pawn.Label}. Reason: {e}"); }
         }
 
-        public static LocalTargetInfo SetActionTargetsFromString(PawnOrderData pawnOrder, int index)
+        public static LocalTargetInfo SetActionTargetsFromString(PawnJobData pawnOrder, int index)
         {
             try
             {
@@ -686,6 +620,24 @@ namespace GameClient
             timeSpeedOrder._targetMapTicks = RimworldManager.GetGameTicks();
 
             return timeSpeedOrder;
+        }
+
+        public static PawnJobData CreateJobOrder(Pawn pawn, Job job)
+        {
+            PawnJobData pawnOrder = new PawnJobData();
+            pawnOrder._pawnId = pawn.ThingID;
+
+            pawnOrder._jobDefName = job.def.defName;
+            pawnOrder._jobThingCount = job.count;
+            pawnOrder._targetComponent.targets = OnlineActivityJobs.GetActionTargets(job);
+            pawnOrder._targetComponent.targetTypes = OnlineActivityJobs.GetActionTypes(job);
+            pawnOrder._targetComponent.targetFactions = OnlineActivityJobs.GetActionTargetFactions(job);
+
+            pawnOrder._isDrafted = OnlineActivityJobs.GetPawnDraftState(pawn);
+            pawnOrder._transformComponent.Position = ValueParser.IntVec3ToArray(pawn.Position);
+            pawnOrder._transformComponent.Rotation = ValueParser.Rot4ToInt(pawn.Rotation);
+
+            return pawnOrder;
         }
 
         public static void ReceiveBufferOrders(OnlineActivityData data)
@@ -881,6 +833,48 @@ namespace GameClient
             }
             catch (Exception e) { Logger.Warning($"Couldn't apply time speed order. Reason: {e}"); }
         }
+
+        public static void ReceiveJobOrder(PawnJobData data)
+        {
+            if (!CheckIfCanExecuteOrder()) return;
+
+            try
+            {
+                Pawn pawn = OnlineActivityManagerHelper.GetPawnFromID(data._pawnId, OnlineActivityTargetFaction.NonFaction);
+                IntVec3 jobPosition = ValueParser.ArrayToIntVec3(data._transformComponent.Position);
+                Rot4 jobRotation = ValueParser.IntToRot4(data._transformComponent.Rotation);
+
+                try
+                {
+                    JobDef jobDef = RimworldManager.GetJobFromDef(data._jobDefName);
+                    LocalTargetInfo targetA = OnlineActivityJobs.SetActionTargetsFromString(data, 0);
+                    LocalTargetInfo targetB = OnlineActivityJobs.SetActionTargetsFromString(data, 1);
+                    LocalTargetInfo targetC = OnlineActivityJobs.SetActionTargetsFromString(data, 2);
+
+                    Job newJob = RimworldManager.SetJobFromDef(jobDef, targetA, targetB, targetC);
+                    newJob.count = data._jobThingCount;
+
+                    if (OnlineActivityJobs.CheckIfJobsAreTheSame(pawn.CurJob, newJob)) return;
+                    else
+                    {
+                        OnlineActivityJobs.SetPawnTransform(pawn, jobPosition, jobRotation);
+                        OnlineActivityJobs.SetPawnDraftState(pawn, data._isDrafted);
+
+                        OnlineActivityQueues.SetThingQueue(pawn);
+                        OnlineActivityJobs.ChangeCurrentJob(pawn, newJob);
+                        OnlineActivityJobs.ChangeJobSpeedIfNeeded(newJob);
+                    }
+                }
+
+                // If the job fails to parse we still want to move the pawn around
+                catch
+                {
+                    OnlineActivityJobs.SetPawnTransform(pawn, jobPosition, jobRotation);
+                    OnlineActivityJobs.SetPawnDraftState(pawn, data._isDrafted);
+                }
+            }
+            catch (Exception e) { Logger.Warning($"Couldn't apply job order. Reason: {e}"); }
+        }
     }
 
     public static class OnlineActivityQueues
@@ -904,7 +898,7 @@ namespace GameClient
 
     public static class OnlineActivityClock
     {
-        public static List<PawnOrderData> pawnOrderBuffer = new List<PawnOrderData>();
+        public static List<PawnJobData> jobOrderBuffer = new List<PawnJobData>();
 
         public static List<CreationOrderData> creationOrderBuffer = new List<CreationOrderData>();
 
@@ -924,11 +918,7 @@ namespace GameClient
         {
             while (SessionValues.currentRealTimeActivity != OnlineActivityType.None)
             {
-                try 
-                {  
-                    OnlineActivityJobs.GetPawnJobs();
-                    SendBufferData();
-                }
+                try { SendBufferData(); }
                 catch (Exception e) { Logger.Error($"Activity clock tick failed, this should never happen. Exception > {e}"); }
 
                 await Task.Delay(TimeSpan.FromMilliseconds(SessionValues.actionValues.OnlineActivityTickMS));
@@ -939,33 +929,72 @@ namespace GameClient
         {
             OnlineActivityData onlineActivityData = new OnlineActivityData();
             onlineActivityData._stepMode = OnlineActivityStepMode.Buffer;
+            bool shouldSend = false;
 
-            onlineActivityData._creationOrders = creationOrderBuffer.ToArray();
-            creationOrderBuffer.Clear();
+            if (creationOrderBuffer.Count > 0)
+            {
+                onlineActivityData._creationOrders = creationOrderBuffer.ToArray();
+                creationOrderBuffer.Clear();
+                shouldSend = true;
+            }
 
-            onlineActivityData._destructionOrders = destructionOrderBuffer.ToArray();
-            destructionOrderBuffer.Clear();
+            if (destructionOrderBuffer.Count > 0)
+            {
+                onlineActivityData._destructionOrders = destructionOrderBuffer.ToArray();
+                destructionOrderBuffer.Clear();
+                shouldSend = true;
+            }
 
-            onlineActivityData._damageOrders = damageOrderBuffer.ToArray();
-            damageOrderBuffer.Clear();
+            if (damageOrderBuffer.Count > 0)
+            {
+                onlineActivityData._damageOrders = damageOrderBuffer.ToArray();
+                damageOrderBuffer.Clear();
+                shouldSend = true;
+            }
 
-            onlineActivityData._hediffOrders = hediffOrderBuffer.ToArray();
-            hediffOrderBuffer.Clear();
+            if (hediffOrderBuffer.Count > 0)
+            {
+                onlineActivityData._hediffOrders = hediffOrderBuffer.ToArray();
+                hediffOrderBuffer.Clear();
+                shouldSend = true;
+            }
 
-            onlineActivityData._timeSpeedOrders = timeSpeedOrderBuffer.ToArray();
-            timeSpeedOrderBuffer.Clear();
+            if (timeSpeedOrderBuffer.Count > 0)
+            {
+                onlineActivityData._timeSpeedOrders = timeSpeedOrderBuffer.ToArray();
+                timeSpeedOrderBuffer.Clear();
+                shouldSend = true;
+            }
 
-            onlineActivityData._gameConditionOrders = gameConditionOrderBuffer.ToArray();
-            gameConditionOrderBuffer.Clear();
 
-            onlineActivityData._weatherOrders = weatherOrderBuffer.ToArray();
-            weatherOrderBuffer.Clear();
+            if (gameConditionOrderBuffer.Count > 0)
+            {
+                onlineActivityData._gameConditionOrders = gameConditionOrderBuffer.ToArray();
+                gameConditionOrderBuffer.Clear();
+                shouldSend = true;
+            }
 
-            onlineActivityData._pawnOrders = pawnOrderBuffer.ToArray();
-            pawnOrderBuffer.Clear();
 
-            Packet packet = Packet.CreatePacketFromObject(nameof(OnlineActivityManager), onlineActivityData);
-            Network.listener.EnqueuePacket(packet);
+            if (weatherOrderBuffer.Count > 0)
+            {
+                onlineActivityData._weatherOrders = weatherOrderBuffer.ToArray();
+                weatherOrderBuffer.Clear();
+                shouldSend = true;
+            }
+
+            if (jobOrderBuffer.Count > 0)
+            {
+                onlineActivityData._jobOrders = jobOrderBuffer.ToArray();
+                jobOrderBuffer.Clear();
+                shouldSend = true;
+            }
+
+            if (!shouldSend) return;
+            else
+            {
+                Packet packet = Packet.CreatePacketFromObject(nameof(OnlineActivityManager), onlineActivityData);
+                Network.listener.EnqueuePacket(packet);
+            }
         }
 
         public static void ReceiveAllData(OnlineActivityData data)
@@ -977,7 +1006,7 @@ namespace GameClient
             foreach (TimeSpeedOrderData order in data._timeSpeedOrders) OnlineActivityOrders.ReceiveTimeSpeedOrder(order);
             foreach (GameConditionOrderData order in data._gameConditionOrders) OnlineActivityOrders.ReceiveGameConditionOrder(order);
             foreach (WeatherOrderData order in data._weatherOrders) OnlineActivityOrders.ReceiveWeatherOrder(order);
-            foreach (PawnOrderData order in data._pawnOrders) OnlineActivityJobs.SetPawnJob(order);
+            foreach (PawnJobData order in data._jobOrders) OnlineActivityOrders.ReceiveJobOrder(order);
         }
     }
 

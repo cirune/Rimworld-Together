@@ -18,8 +18,13 @@ namespace GameClient
             else if (!OnlineActivityPatches.CheckIfShouldExecutePatch(___pawn, true, true, false)) return true;
             else
             {
-                // We ignore jobs from here if it's from our faction since it's handled from the job clock
-                if (OnlineActivityManager.factionPawns.Contains(___pawn)) return true;
+                if (OnlineActivityManager.factionPawns.Contains(___pawn))
+                {
+                    PawnJobData order = OnlineActivityOrders.CreateJobOrder(___pawn, newJob);
+                    OnlineActivityClock.jobOrderBuffer.Add(order);
+                    return true;
+                }
+
                 else
                 {
                     // IF COMING FROM HOST
