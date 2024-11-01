@@ -315,8 +315,8 @@ namespace GameServer
                 DefName = "RTFarmland",
                 DefNameCost = ["Silver"],
                 Cost = [500],
-                Rewards = new SiteRewardFile[]
-                {
+                Rewards =
+                [
                     new SiteRewardFile()
                     {
                         RewardDef = "RawRice",
@@ -337,7 +337,7 @@ namespace GameServer
                         RewardDef = "PsychoidLeaves",
                         RewardAmount = 25
                     }
-                }
+                ]
             });
 
             siteInfoFiles.Add(new SiteInfoFile()
