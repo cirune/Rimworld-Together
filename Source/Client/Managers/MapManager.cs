@@ -24,12 +24,8 @@ namespace GameClient
 
         private static void SendMapToServerSingle(Map map)
         {
-            CompressedFile compressedFile = new CompressedFile();
-            compressedFile.Instructions = map.Tile.ToString();
-            compressedFile.Contents = Serializer.ConvertObjectToBytes(MapScriber.MapToString(map, true, true, true, true, true, true));
-
             MapData mapData = new MapData();
-            mapData._mapFile = compressedFile;
+            mapData._mapFile = MapScriber.MapToString(map, true, true, true, true, true, true);
 
             Packet packet = Packet.CreatePacketFromObject(nameof(MapManager), mapData);
             Network.listener.EnqueuePacket(packet);

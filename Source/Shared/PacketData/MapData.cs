@@ -6,6 +6,6 @@ namespace Shared
 
     public class MapData
     {
-        public CompressedFile _mapFile = new CompressedFile();
+        public MapFile _mapFile = new MapFile();
     }
 }

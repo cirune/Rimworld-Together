@@ -14,13 +14,13 @@ namespace GameServer
             SaveUserMap(client, mapData._mapFile);
         }
 
-        public static void SaveUserMap(ServerClient client, CompressedFile file)
+        public static void SaveUserMap(ServerClient client, MapFile file)
         {
             string savingDirectory = Path.Combine(Master.mapsPath, client.userFile.Username);
             if (!Directory.Exists(savingDirectory)) Directory.CreateDirectory(savingDirectory);
-            Serializer.ObjectBytesToFile(Path.Combine(savingDirectory, file.Instructions + fileExtension), file);
+            Serializer.ObjectBytesToFile(Path.Combine(savingDirectory, file.Tile + fileExtension), file);
 
-            Logger.Message($"[Save map] > {client.userFile.Username} > {file.Instructions}");
+            Logger.Message($"[Save map] > {client.userFile.Username} > {file.Tile}");
         }
 
         public static void DeleteMap(string path)
@@ -47,10 +47,10 @@ namespace GameServer
             return Directory.GetFiles(Path.Combine(Master.mapsPath, username));
         }
 
-        public static CompressedFile GetUserMapFromTile(string username, int mapTileToGet)
+        public static MapFile GetUserMapFromTile(string username, int mapTileToGet)
         {
             string path = Path.Combine(Master.mapsPath, username, mapTileToGet + fileExtension);
-            return Serializer.FileBytesToObject<CompressedFile>(path);
+            return Serializer.FileBytesToObject<MapFile>(path);
         }
     }
 }
