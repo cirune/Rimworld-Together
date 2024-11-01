@@ -18,6 +18,8 @@ Download the latest server files at [here](https://github.com/Byte-Nova/Rimworld
 ## Container-based Deployment:
 We provide a Dockerfile to build and run the official RimWorld-Together Container with [docker](https://www.docker.com/) , or  [buildah](https://github.com/containers/buildah) and [podman](https://github.com/containers/podman)
 
+`GameServer` exucutable is located in the `/App/Server` directory.  
+the *Data* volume contains all server files and is located at `/Data` inside the container.
 
 ### Build with Docker
 **Build:**
