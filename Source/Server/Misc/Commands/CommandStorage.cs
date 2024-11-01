@@ -163,9 +163,9 @@ namespace GameServer
 
         private static readonly ServerCommand updateCommand = new ServerCommand("update", 0,
             "Updates your server to the newest version. Do not use if you aren't told directly to do so, as it can very well BREAK things",
-            UpdateCommand
-            );
-        public static readonly ServerCommand[] serverCommands = new ServerCommand[]
+            UpdateCommandAction);
+
+        public static List<ServerCommand> serverCommands = new List<ServerCommand>
         {
             backupCommand,
             backupUserCommand,
@@ -487,7 +487,7 @@ namespace GameServer
             }
             fullText = fullText.Remove(fullText.Length - 1, 1);
 
-            ChatManager.BroadcastServerMessage(fullText);
+            ChatManager.BroadcastConsoleMessage(fullText);
 
             Logger.Title($"Sent chat: '{fullText}'");
         }
@@ -738,23 +738,23 @@ namespace GameServer
             }
         }
 
-        private static void UpdateCommand() 
+        private static void UpdateCommandAction() 
         {
             //Make sure the user wants to update the server
             Logger.Warning("Are you sure you want to reset the world? You should only do so if you are told to, as this may break things.");
             Logger.Warning("Please type 'YES' or 'NO'");
 
-        UpdateWorldQuestion:
-            string response = Console.ReadLine();
+            UpdateWorldQuestion:
+                string response = Console.ReadLine();
 
-            if (response == "NO") return;
-            else if (response == "YES")
-                GameServer.Updater.UpdateManager.UpdateServer();
-            else 
-            {
-                Logger.Error($"{response} is not a valid option; The options must be capitalized");
-                goto UpdateWorldQuestion;
-            }
+                if (response == "NO") return;
+                else if (response == "YES")
+                    GameServer.Updater.UpdateManager.UpdateServer();
+                else 
+                {
+                    Logger.Error($"{response} is not a valid option; The options must be capitalized");
+                    goto UpdateWorldQuestion;
+                }
         }
     }
 }

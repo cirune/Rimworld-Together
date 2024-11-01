@@ -145,7 +145,7 @@ namespace GameClient
                         if (SessionValues.actionValues.EnableAids)
                         {
                             List<string> pawnNames = new List<string>();
-                            foreach (Pawn pawn in RimworldManager.GetAllSettlementPawns(Faction.OfPlayer, false)) pawnNames.Add(pawn.LabelCapNoCount);
+                            foreach (Pawn pawn in RimworldManager.GetAllSettlementsPawns(Faction.OfPlayer, false)) pawnNames.Add(pawn.LabelCapNoCount);
                             DialogManager.PushNewDialog(new RT_Dialog_ListingWithButton("Aid menu", "Select the pawn you want to send for aid", 
                                 pawnNames.ToArray(), AidManager.SendAidRequest));
                         }
@@ -197,25 +197,6 @@ namespace GameClient
                     }
                 };
 
-                Command_Action command_GlobalMarketMenu = new Command_Action
-                {
-                    defaultLabel = "Global Market Menu",
-                    defaultDesc = "Access the global market",
-                    icon = ContentFinder<Texture2D>.Get("Commands/GlobalMarket"),
-                    action = delegate 
-                    {
-                        SessionValues.chosenSettlement = Find.WorldObjects.Settlements.First(fetch => fetch.Faction == Faction.OfPlayer);
-
-                        if (SessionValues.actionValues.EnableMarket)
-                        {
-                            if (RimworldManager.CheckIfPlayerHasConsoleInMap(SessionValues.chosenSettlement.Map)) MarketManager.RequestReloadStock();
-                            else DialogManager.PushNewDialog(new RT_Dialog_Error("You need a comms console to use the market!"));
-                        }
-                        else DialogManager.PushNewDialog(new RT_Dialog_Error("This feature has been disabled in this server!"));
-                    }
-                };
-
-                gizmoList.Add(command_GlobalMarketMenu);
                 gizmoList.Add(command_FactionMenu);
                 __result = gizmoList;
             }

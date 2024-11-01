@@ -63,10 +63,6 @@ namespace GameClient
 
         public static string dialogButtonListingResultString;
 
-        public static RT_Dialog_MarketListing dialogMarketListing;
-
-        public static int dialogMarketListingResult;
-
         public static RT_Dialog_ListingWithTuple dialogTupleListing;
 
         public static string[] dialogTupleListingResultString;

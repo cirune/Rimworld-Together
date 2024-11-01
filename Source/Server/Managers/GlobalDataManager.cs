@@ -16,8 +16,6 @@ namespace GameServer
 
             globalData = GlobalDataManagerHelper.GetServerSites(client, globalData);
 
-            globalData = GlobalDataManagerHelper.GetServerMarket(globalData);
-
             globalData = GlobalDataManagerHelper.GetServerCaravans(globalData);
 
             globalData = GlobalDataManagerHelper.GetServerRoads(globalData);
@@ -94,12 +92,6 @@ namespace GameServer
 
             globalData._playerSites = tempList.ToArray();
 
-            return globalData;
-        }
-
-        public static ServerGlobalData GetServerMarket(ServerGlobalData globalData)
-        {
-            globalData._marketValues = Master.marketValues;
             return globalData;
         }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using GameClient;
 using RimWorld;
 using RimWorld.Planet;
 using Shared;
@@ -14,48 +15,9 @@ namespace GameClient
     {
         public static SitePartDef[] siteDefs;
 
-        public static SiteInfoFile[] siteData;
+        public static SiteValuesFile siteValues;
 
-        public static float interval;
-        public static void SetValues(ServerGlobalData serverGlobalData)
-        {
-            siteData = serverGlobalData._siteValues.SiteInfoFiles;
-            foreach(SiteInfoFile site in serverGlobalData._siteValues.SiteInfoFiles) 
-            {
-                if(site.OverrideDescription != "") 
-                {
-                    siteDefs.Where(S => S.defName == site.DefName).FirstOrDefault().description = site.OverrideDescription;
-                }
-                if (site.OverrideName != "")
-                {
-                    siteDefs.Where(S => S.defName == site.DefName).FirstOrDefault().label = site.OverrideName;
-                }
-            }
-            interval = serverGlobalData._siteValues.TimeIntervalMinute;
-        }
-
-        public static void SetSiteDefs()
-        {
-            List<SitePartDef> defs = new List<SitePartDef>
-            {
-                RTSitePartDefOf.RTFarmland,
-                RTSitePartDefOf.RTHunterCamp,
-                RTSitePartDefOf.RTQuarry,
-                RTSitePartDefOf.RTSawmill,
-                RTSitePartDefOf.RTBank,
-                RTSitePartDefOf.RTLaboratory,
-                RTSitePartDefOf.RTRefinery,
-                RTSitePartDefOf.RTHerbalWorkshop,
-                RTSitePartDefOf.RTTextileFactory,
-                RTSitePartDefOf.RTFoodProcessor
-            };
-            siteDefs = defs.ToArray();
-        }
-
-        public static SitePartDef GetDefForNewSite(string siteDef)
-        {
-            return siteDefs.Where(S => S.defName == siteDef).First();
-        }
+        public static List<Site> playerSites = new List<Site>();
 
         public static void ParsePacket(Packet packet)
         {
@@ -76,6 +38,24 @@ namespace GameClient
                     break;
             }
         }
+
+        public static void SetSiteDefs()
+        {
+            siteDefs = new SitePartDef[]
+            {
+                RTSitePartDefOf.RTFarmland,
+                RTSitePartDefOf.RTHunterCamp,
+                RTSitePartDefOf.RTQuarry,
+                RTSitePartDefOf.RTSawmill,
+                RTSitePartDefOf.RTBank,
+                RTSitePartDefOf.RTLaboratory,
+                RTSitePartDefOf.RTRefinery,
+                RTSitePartDefOf.RTHerbalWorkshop,
+                RTSitePartDefOf.RTTextileFactory,
+                RTSitePartDefOf.RTFoodProcessor
+            };
+        }
+
         private static void OnSiteAccept()
         {
             DialogManager.PopWaitDialog();
@@ -100,11 +80,9 @@ namespace GameClient
             DialogManager.PushNewDialog(d1);
         }
 
-        public static List<Site> playerSites = new List<Site>();
-
-        public static void AddSites(SiteIdendity[] sites)
+        public static void AddSites(SiteIdendityFile[] sites)
         {
-            foreach (SiteIdendity toAdd in sites)
+            foreach (SiteIdendityFile toAdd in sites)
             {
                 SpawnSingleSite(toAdd);
             }
@@ -117,20 +95,20 @@ namespace GameClient
 
             foreach (Site toRemove in sites)
             {
-                SiteIdendity siteFile = new SiteIdendity();
+                SiteIdendityFile siteFile = new SiteIdendityFile();
                 siteFile.Tile = toRemove.Tile;
                 RemoveSingleSite(siteFile);
             }
         }
 
-        public static void SpawnSingleSite(SiteIdendity toAdd)
+        public static void SpawnSingleSite(SiteIdendityFile toAdd)
         {
             if (Find.WorldObjects.Sites.FirstOrDefault(fetch => fetch.Tile == toAdd.Tile) != null) return;
             else
             {
                 try
                 {
-                    SitePartDef siteDef = SiteManager.GetDefForNewSite(toAdd.Type.DefName);
+                    SitePartDef siteDef = siteDefs.First(fetch => fetch.defName == toAdd.Type.DefName);
                     Site site = SiteMaker.MakeSite(sitePart: siteDef,
                         tile: toAdd.Tile,
                         threatPoints: 1000,
@@ -143,7 +121,7 @@ namespace GameClient
             }
         }
 
-        public static void RemoveSingleSite(SiteIdendity toRemove)
+        public static void RemoveSingleSite(SiteIdendityFile toRemove)
         {
             try
             {
@@ -160,51 +138,56 @@ namespace GameClient
 
         public static void RequestSiteBuild(SiteInfoFile configFile)
         {
-            bool shouldCancel = false;
-            for (int i = 0;i < configFile.DefNameCost.Length;i++) {
+            for (int i = 0; i < configFile.DefNameCost.Length; i++) 
+            {
                 if (!RimworldManager.CheckIfHasEnoughItemInCaravan(SessionValues.chosenCaravan, configFile.DefNameCost[i], configFile.Cost[i]))
                 {
-                    shouldCancel = true;
                     DialogManager.PushNewDialog(new RT_Dialog_Error("You do not have enough silver!"));
+                    return;
                 }
             }
-            if(!shouldCancel)
+
+            for (int i = 0; i < configFile.DefNameCost.Length; i++)
             {
-                for (int i = 0; i < configFile.DefNameCost.Length; i++) 
-                    RimworldManager.RemoveThingFromCaravan(SessionValues.chosenCaravan, DefDatabase<ThingDef>.GetNamed(configFile.DefNameCost[i]), configFile.Cost[i]);
+                RimworldManager.RemoveThingFromCaravan(SessionValues.chosenCaravan, 
+                    DefDatabase<ThingDef>.GetNamed(configFile.DefNameCost[i]), configFile.Cost[i]);
+            }    
 
-                SiteData siteData = new SiteData();
-                siteData._stepMode = SiteStepMode.Build;
-                siteData._siteFile.Tile = SessionValues.chosenCaravan.Tile;
-                siteData._siteFile.Type.DefName = configFile.DefName;
-                if (ServerValues.hasFaction) siteData._siteFile.FactionFile = new FactionFile();
-                Packet packet = Packet.CreatePacketFromObject(nameof(SiteManager), siteData);
-                Network.listener.EnqueuePacket(packet);
+            SiteData siteData = new SiteData();
+            siteData._stepMode = SiteStepMode.Build;
+            siteData._siteFile.Tile = SessionValues.chosenCaravan.Tile;
+            siteData._siteFile.Type.DefName = configFile.DefName;
+            if (ServerValues.hasFaction) siteData._siteFile.FactionFile = new FactionFile();
 
-                DialogManager.PushNewDialog(new RT_Dialog_Wait("Waiting for building"));
-            }
+            Packet packet = Packet.CreatePacketFromObject(nameof(SiteManager), siteData);
+            Network.listener.EnqueuePacket(packet);
+
+            DialogManager.PushNewDialog(new RT_Dialog_Wait("Waiting for building"));
         }
 
-        public static void ChangeConfig(SiteInfoFile config, string reward) 
+        public static void RequestSiteChangeConfig(SiteInfoFile config, string reward) 
         {
-            SiteData packetData = new SiteData();
-            packetData._stepMode = SiteStepMode.Config;
-            SiteRewardConfig rewardConfig = new SiteRewardConfig();
+            SiteRewardConfigData rewardConfig = new SiteRewardConfigData();
             rewardConfig._siteDef = config.DefName;
             rewardConfig._rewardDef = reward;
+
+            SiteData packetData = new SiteData();
+            packetData._stepMode = SiteStepMode.Config;
             packetData._siteConfigFile = rewardConfig;
+
             Packet packet = Packet.CreatePacketFromObject(nameof(SiteManager), packetData);
             Network.listener.EnqueuePacket(packet);
         }
     }
 }
 
-public static class PlayerSiteManagerHelper
+public static class SiteManagerHelper
 {
-    public static SiteIdendity[] tempSites;
+    public static SiteIdendityFile[] tempSites;
 
     public static void SetValues(ServerGlobalData serverGlobalData)
     {
+        SiteManager.siteValues = serverGlobalData._siteValues;
         tempSites = serverGlobalData._playerSites;
     }
 }

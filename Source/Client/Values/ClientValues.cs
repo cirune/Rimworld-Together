@@ -1,4 +1,5 @@
-﻿using Verse;
+﻿using System.IO;
+using Verse;
 
 namespace GameClient
 {
@@ -16,7 +17,7 @@ namespace GameClient
 
         public static bool isInTransfer;
 
-        public static bool isRealTimeHost;
+        public static bool isUsingScriber;
 
         public static string username;
 
@@ -68,7 +69,7 @@ namespace GameClient
 
         public static void ToggleSendingSaveToServer(bool mode) { isSendingSaveToServer = mode; }
 
-        public static void ToggleRealTimeHost(bool mode) { isRealTimeHost = mode; }
+        public static void ToggleUsingScriber(bool mode) { isUsingScriber = mode; }
 
         public static void CleanValues()
         {
@@ -79,7 +80,7 @@ namespace GameClient
             ToggleSavingGame(false);
             ToggleQuickConnecting(false);
             ToggleSendingSaveToServer(false);
-            ToggleRealTimeHost(false);
+            ToggleUsingScriber(false);
         }
     }
 }

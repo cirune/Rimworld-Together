@@ -6,6 +6,7 @@ using RimWorld.Planet;
 using UnityEngine;
 using Verse;
 using Verse.AI;
+using static Shared.CommonEnumerators;
 
 namespace GameClient
 {
@@ -68,11 +69,6 @@ namespace GameClient
                 && fetch.IsInAnyStorage() && fetch.def.category == ThingCategory.Item && !fetch.Position.Fogged(map)).ToArray();
         }
 
-        public static Thing[] GetSpecificThingInMap(ThingDef thingDef, Map map)
-        {
-            return map.listerThings.AllThings.Where(fetch => fetch.def == thingDef && !fetch.Position.Fogged(map)).ToArray();
-        }
-
         public static int GetSpecificThingCountInMap(ThingDef thingDef, Map map)
         {
             int totalCount = 0;
@@ -98,16 +94,6 @@ namespace GameClient
             return totalSilver;
         }
 
-        public static bool CheckIfPlayerHasConsoleInMap(Map map)
-        {
-            foreach (Thing thing in map.listerThings.AllThings)
-            {
-                if (thing.def == ThingDefOf.CommsConsole && thing.Faction == Faction.OfPlayer) return true;
-            }
-
-            return false;
-        }
-
         public static void GenerateLetter(string title, string description, LetterDef letterType)
         {
             Find.LetterStack.ReceiveLetter(title,
@@ -124,14 +110,6 @@ namespace GameClient
         public static Job SetJobFromDef(JobDef jobDef, LocalTargetInfo targetA, LocalTargetInfo targetB, LocalTargetInfo targetC)
         {
             return JobMaker.MakeJob(jobDef, targetA, targetB, targetC);
-        }
-
-        public static Thing[] GetThingsInMap(Map map)
-        {
-            return map.listerThings.AllThings.Where(fetch =>
-                !DeepScribeHelper.CheckIfThingIsHuman(fetch) &&
-                !DeepScribeHelper.CheckIfThingIsAnimal(fetch))
-                .ToArray();
         }
 
         public static void PlaceThingIntoMap(Thing thing, Map map, ThingPlaceMode placeMode = ThingPlaceMode.Direct, bool useSpot = false, bool byDropPod = false)
@@ -152,7 +130,7 @@ namespace GameClient
         {
             if (!DropCellFinder.TryFindDropSpotNear(center, map, out IntVec3 vectorForUse, false, true))
             {
-                Logger.Warning("Couldn't find any good drop spot near " + center + "Will use random valid location instead.");
+                Logger.Warning("Couldn't find any good drop spot near " + center + "Will use random valid location instead.", LogImportanceMode.Verbose);
                 vectorForUse = CellFinderLoose.RandomCellWith((Predicate<IntVec3>)(c => c.Standable(map) && !c.Fogged(map)), map);
             }
             
@@ -223,10 +201,10 @@ namespace GameClient
         public static void RemovePawnFromGame(Pawn pawn)
         {
             if (pawn.Spawned) pawn.DeSpawn();
-            if (Find.WorldPawns.AllPawnsAliveOrDead.Contains(pawn)) Find.WorldPawns.RemovePawn(pawn);
+            pawn.Destroy();
         }
 
-        public static Pawn[] GetAllSettlementPawns(Faction faction, bool includeAnimals)
+        public static Pawn[] GetAllSettlementsPawns(Faction faction, bool includeAnimals)
         {
             Settlement[] settlements = Find.World.worldObjects.Settlements.Where(fetch => fetch.Faction == faction).ToArray();
 
@@ -241,18 +219,21 @@ namespace GameClient
 
         public static Pawn[] GetPawnsFromMap(Map map, Faction faction, bool includeAnimals)
         {
-            if (includeAnimals) return map.mapPawns.AllPawns.Where(fetch => fetch.Faction == faction).ToArray();
-            else return map.mapPawns.AllPawns.Where(fetch => fetch.Faction == faction && !DeepScribeHelper.CheckIfThingIsAnimal(fetch)).ToArray();
+            if (map == null || map.mapPawns == null) return new Pawn[0];
+            else
+            {
+                if (includeAnimals) return map.mapPawns.AllPawns.Where(fetch => fetch.Faction == faction).ToArray();
+                else return map.mapPawns.AllPawns.Where(fetch => fetch.Faction == faction && !ScriberHelper.CheckIfThingIsAnimal(fetch)).ToArray();
+            }
         }
 
         public static bool CheckIfMapHasPlayerPawns(Map map)
         {
-            if (map == null) return false;
-            else
-            {
-                if (map.mapPawns.AllPawns.FirstOrDefault(fetch => fetch.Faction == Faction.OfPlayer) != null) return true;
-                else return false;
-            }
+            if (map == null || map.mapPawns == null) return false;
+            else if (map.mapPawns.AllPawns.FirstOrDefault(fetch => fetch.Faction == Faction.OfPlayer) != null) return true;
+            else return false;
         }
+
+        public static void SetGameSpeed(TimeSpeed timeSpeed) { Find.TickManager.CurTimeSpeed = timeSpeed; }
     }
 }

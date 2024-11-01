@@ -38,7 +38,7 @@ SetAllNeededVariables()
     echo "Build result path is set to $BUILDRESULTPATH";
 
     cd Current;
-    mkdir "Assemblies";
+    mkdir "Assemblies" >/dev/null;
     cd Assemblies;
     BUILDRESULTPATH=$(pwd);
     echo "Build result path is set to $BUILDRESULTPATH";
@@ -58,7 +58,7 @@ BuildClient()
     cd ..
     cd Source
     cd Client
-    sudo dotnet build GameClient.csproj --configuration Release
+    dotnet build GameClient.csproj --configuration Release
 
     # Go and copy files to the result folder
     cd bin

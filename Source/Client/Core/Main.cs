@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using Shared;
+using System;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
@@ -20,14 +21,12 @@ namespace GameClient
             static RimworldTogether() 
             {
                 ApplyHarmonyPathches();
-
                 PrepareCulture();
                 PreparePaths();
                 CreateUnityDispatcher();
 
                 CaravanManagerHelper.SetCaravanDefs();
                 PreferenceManager.LoadClientPreferences();
-
                 CompatibilityManager.LoadAllPatchedAssemblies();
             }
         }
@@ -50,9 +49,7 @@ namespace GameClient
         {
             Master.mainPath = GenFilePaths.SaveDataFolderPath;
             Master.modFolderPath = Path.Combine(Master.mainPath, "RimWorld Together");
-            
-            Master.modAssemblyPath = Directory.GetParent(Assembly.GetExecutingAssembly().Location).ToString();
-            Master.compatibilityPatchesFolderPath = Path.Combine(Master.modAssemblyPath, "Patches");
+            Master.modAssemblyPath = Path.Combine(LoadedModManager.GetMod<Mod>().Content.ModMetaData.RootDir.FullName, "Current", "Assemblies");
 
             Master.connectionDataPath = Path.Combine(Master.modFolderPath, "ConnectionData.json");
             Master.clientPreferencesPath = Path.Combine(Master.modFolderPath, "Preferences.json");
@@ -60,7 +57,6 @@ namespace GameClient
             Master.savesFolderPath = GenFilePaths.SavedGamesFolderPath;
 
             if (!Directory.Exists(Master.modFolderPath)) Directory.CreateDirectory(Master.modFolderPath);
-            if (!Directory.Exists(Master.compatibilityPatchesFolderPath)) Directory.CreateDirectory(Master.compatibilityPatchesFolderPath);
         }
 
         public static void CreateUnityDispatcher()
@@ -69,7 +65,7 @@ namespace GameClient
             {
                 GameObject go = new GameObject("Dispatcher");
                 Master.threadDispatcher = go.AddComponent(typeof(UnityMainThreadDispatcher)) as UnityMainThreadDispatcher;
-                Object.Instantiate(go);
+                UnityEngine.Object.Instantiate(go);
 
                 Logger.Message($"Created dispatcher for version {CommonValues.executableVersion}");
             }

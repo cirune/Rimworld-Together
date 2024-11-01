@@ -11,8 +11,6 @@ namespace Shared
 
         public SiteValuesFile _siteValues;
 
-        public MarketValuesFile _marketValues;
-
         public EventFile[] _eventValues;
 
         public ActionValuesFile _actionValues;
