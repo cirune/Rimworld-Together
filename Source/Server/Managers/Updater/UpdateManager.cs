@@ -22,7 +22,7 @@ namespace GameServer.Updater
                 if (File.Exists(file))
                 {
                     SiteFile site = Serializer.SerializeFromFile<SiteFile>(file);
-                    SiteIdendity newSite = new SiteIdendity();
+                    SiteIdendityFile newSite = new SiteIdendityFile();
                     newSite.Goodwill = site.Goodwill;
                     newSite.FactionFile = UserManagerHelper.GetUserFileFromName(site.Owner).FactionFile;
                     newSite.Owner = site.Owner;

@@ -2,13 +2,14 @@ namespace Shared
 {
     public class SiteConfigFile 
     {
-        public string _DefName;
-        public string _RewardDefName;
+        public string DefName;
+
+        public string RewardDefName;
 
         public SiteConfigFile(string defName, string rewardDefName)
         {
-            _DefName = defName;
-            _RewardDefName = rewardDefName;
+            DefName = defName;
+            RewardDefName = rewardDefName;
         }
     }
 }

@@ -5,7 +5,7 @@ using static Shared.CommonEnumerators;
 namespace Shared
 {
     [Serializable]
-    public class SiteIdendity
+    public class SiteIdendityFile
     {
         public int Tile;
 

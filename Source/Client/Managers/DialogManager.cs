@@ -1,5 +1,4 @@
-﻿using GameClient.Dialogs;
-using System;
+﻿using System;
 using UnityEngine;
 using Verse;
 

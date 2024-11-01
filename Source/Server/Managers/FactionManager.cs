@@ -69,7 +69,7 @@ namespace GameServer
                 factionFile.CurrentMembers.Add(client.userFile.Username);
                 factionFile.CurrentRanks.Add((int)FactionRanks.Admin);
                 FactionManagerHelper.SaveFactionFile(factionFile);
-                foreach (SiteIdendity site in SiteManagerHelper.GetAllSitesFromUsername(client.userFile.Username))
+                foreach (SiteIdendityFile site in SiteManagerHelper.GetAllSitesFromUsername(client.userFile.Username))
                 {
                     SiteManagerHelper.UpdateFaction(site, factionFile);
                 }
@@ -100,8 +100,8 @@ namespace GameServer
                     foreach (UserFile userFile in toUpdateOffline) userFile.UpdateFaction(null);
 
                     Packet packet = Packet.CreatePacketFromObject(nameof(FactionManager), factionManifest);
-                    SiteIdendity[] factionSites = FactionManagerHelper.GetFactionSites(factionFile);
-                    foreach (SiteIdendity site in factionSites)
+                    SiteIdendityFile[] factionSites = FactionManagerHelper.GetFactionSites(factionFile);
+                    foreach (SiteIdendityFile site in factionSites)
                     {
                         SiteManagerHelper.UpdateFaction(site, null);
                     }
@@ -158,7 +158,7 @@ namespace GameServer
 
                     GoodwillManager.ClearAllFactionMemberGoodwills(factionFile);
 
-                    foreach (SiteIdendity site in SiteManagerHelper.GetAllSitesFromUsername(client.userFile.Username))
+                    foreach (SiteIdendityFile site in SiteManagerHelper.GetAllSitesFromUsername(client.userFile.Username))
                     {
                         SiteManagerHelper.UpdateFaction(site,factionFile);
                     }
@@ -214,7 +214,7 @@ namespace GameServer
                     if (toRemoveConnected != null)
                     {
                         toRemoveConnected.userFile.UpdateFaction(null);
-                        foreach (SiteIdendity site in SiteManagerHelper.GetAllSitesFromUsername(toRemoveConnected.userFile.Username))
+                        foreach (SiteIdendityFile site in SiteManagerHelper.GetAllSitesFromUsername(toRemoveConnected.userFile.Username))
                         {
                             SiteManagerHelper.UpdateFaction(site, null);
                         }
@@ -228,7 +228,7 @@ namespace GameServer
                     else
                     {
                         toUpdateOffline.UpdateFaction(null);
-                        foreach (SiteIdendity site in SiteManagerHelper.GetAllSitesFromUsername(toUpdateOffline.Username))
+                        foreach (SiteIdendityFile site in SiteManagerHelper.GetAllSitesFromUsername(toUpdateOffline.Username))
                         {
                             SiteManagerHelper.UpdateFaction(site, null);
                         }
@@ -344,8 +344,8 @@ namespace GameServer
                     toUpdateOffline?.UpdateFaction(factionFile);
                 }
 
-                SiteIdendity[] factionSites = GetFactionSites(factionFile);
-                foreach(SiteIdendity site in factionSites) SiteManagerHelper.UpdateFaction(site, factionFile);
+                SiteIdendityFile[] factionSites = GetFactionSites(factionFile);
+                foreach(SiteIdendityFile site in factionSites) SiteManagerHelper.UpdateFaction(site, factionFile);
             }
             catch (Exception e) { Logger.Error(e.ToString()); }
 
@@ -406,7 +406,7 @@ namespace GameServer
             return FactionRanks.Member;
         }
 
-        public static SiteIdendity[] GetFactionSites(FactionFile factionFile)
+        public static SiteIdendityFile[] GetFactionSites(FactionFile factionFile)
         {
             return SiteManagerHelper.GetAllSites().Where(fetch => fetch.FactionFile != null && 
                 fetch.FactionFile.Name == factionFile.Name).ToArray();

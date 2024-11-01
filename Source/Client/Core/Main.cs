@@ -26,6 +26,8 @@ namespace GameClient
                 CreateUnityDispatcher();
 
                 CaravanManagerHelper.SetCaravanDefs();
+                SiteManager.SetSiteDefs();
+                
                 PreferenceManager.LoadClientPreferences();
                 CompatibilityManager.LoadAllPatchedAssemblies();
             }

@@ -25,7 +25,7 @@ namespace GameClient
                 PlayerSettlementManager.AddSettlements(PlayerSettlementManagerHelper.tempSettlements);
 
                 SiteManager.ClearAllSites();
-                SiteManager.AddSites(PlayerSiteManagerHelper.tempSites);
+                SiteManager.AddSites(SiteManagerHelper.tempSites);
 
                 NPCSettlementManager.ClearAllSettlements();
                 NPCSettlementManager.AddSettlements(NPCSettlementManagerHelper.tempNPCSettlements);

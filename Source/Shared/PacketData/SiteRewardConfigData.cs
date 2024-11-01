@@ -1,8 +1,9 @@
 namespace Shared 
 {
-    public class SiteRewardConfig 
+    public class SiteRewardConfigData 
     {
         public string _siteDef;
+        
         public string _rewardDef;
     }
 }

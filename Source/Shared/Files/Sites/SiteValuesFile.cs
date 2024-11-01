@@ -9,6 +9,7 @@ namespace Shared
     public class SiteValuesFile
     {
         public float TimeIntervalMinute = 30f;
+        
         public SiteInfoFile[] SiteInfoFiles = new SiteInfoFile[]
         {
             new SiteInfoFile()
