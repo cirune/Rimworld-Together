@@ -10,18 +10,18 @@ using static Shared.CommonEnumerators;
 
 namespace GameClient
 {
-    public static class RewardManager
+    public static class SiteRewardManager
     {
         public static void ParsePacket(Packet packet)
         {
-            RewardData siteData = Serializer.ConvertBytesToObject<RewardData>(packet.contents);
-            ReceiveRewards(siteData);
+            RewardData rewardData = Serializer.ConvertBytesToObject<RewardData>(packet.contents);
+            ReceiveRewards(rewardData);
         }
 
-        private static void ReceiveRewards(RewardData siteData)
+        private static void ReceiveRewards(RewardData rewardData)
         {
             List<Thing> rewards = new List<Thing>();
-            foreach (RewardFile reward in siteData._rewardData)
+            foreach (SiteRewardFile reward in rewardData._rewardData)
             {
                 try
                 {

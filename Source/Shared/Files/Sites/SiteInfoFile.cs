@@ -8,7 +8,7 @@ namespace Shared
 
         public int[] Cost;
 
-        public RewardFile[] Rewards;
+        public SiteRewardFile[] Rewards;
 
         public SiteInfoFile Clone() 
         {

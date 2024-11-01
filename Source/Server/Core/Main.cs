@@ -228,6 +228,7 @@ namespace GameServer
                     else
                     {
                         Master.siteValues = new SiteValuesFile();
+                        SiteManagerHelper.SetSitePresets();
                         Serializer.SerializeToFile(pathToLoad, Master.siteValues);
                     }
                     break;

@@ -353,11 +353,11 @@ namespace GameClient
         {
             if (Network.state == ClientNetworkState.Disconnected) return;
 
+            List<Gizmo> gizmoList = __result.ToList();
+            gizmoList.Clear();
+
             if (FactionValues.playerFactions.Contains(__instance.Faction))
             {
-                var gizmoList = __result.ToList();
-                gizmoList.Clear();
-
                 Command_Action command_Goodwill = new Command_Action
                 {
                     defaultLabel = "Change Goodwill",
@@ -382,6 +382,7 @@ namespace GameClient
                         DialogManager.PushNewDialog(d1);
                     }
                 };
+
                 if (__instance.Faction != FactionValues.yourOnlineFaction || __instance.Faction != Faction.OfPlayer) gizmoList.Add(command_Goodwill);
 
                 __result = gizmoList;
@@ -389,8 +390,19 @@ namespace GameClient
 
             else if (__instance.Faction == Find.FactionManager.OfPlayer)
             {
-                var gizmoList = __result.ToList();
-                gizmoList.Clear();
+                Command_Action command_Config = new Command_Action
+                {
+                    defaultLabel = "Change site configs",
+                    defaultDesc = "Change the configuration of your sites. These settings affect all sites currently under your control.",
+                    icon = ContentFinder<Texture2D>.Get("Commands/SiteConfig"),
+                    action = delegate
+                    {
+                        if (SessionValues.actionValues.EnableSites) DialogManager.PushNewDialog(new RT_Dialog_SiteMenu(true));
+                        else DialogManager.PushNewDialog(new RT_Dialog_Error("This feature has been disabled in this server!"));
+                    }
+                };
+                
+                gizmoList.Add(command_Config);
 
                 __result = gizmoList;
             }
@@ -464,18 +476,6 @@ namespace GameClient
                             else DialogManager.PushNewDialog(new RT_Dialog_Error("This feature has been disabled in this server!"));
                         }
                     };
-                    Command_Action command_Config = new Command_Action
-                    {
-                        defaultLabel = "Change site configs",
-                        defaultDesc = "Change the configuration of your sites. These settings affect all sites currently under your control.",
-                        icon = ContentFinder<Texture2D>.Get("Commands/SiteConfig"),
-                        action = delegate
-                        {
-                            if (SessionValues.actionValues.EnableSites) DialogManager.PushNewDialog(new RT_Dialog_SiteMenu(true));
-                            else DialogManager.PushNewDialog(new RT_Dialog_Error("This feature has been disabled in this server!"));
-                        }
-                    };
-                    gizmoList.Add(command_Config);
 
                     if (presentSite.Faction == Faction.OfPlayer)
                     {

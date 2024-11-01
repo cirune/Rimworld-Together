@@ -69,10 +69,12 @@ namespace GameServer
                 factionFile.CurrentMembers.Add(client.userFile.Username);
                 factionFile.CurrentRanks.Add((int)FactionRanks.Admin);
                 FactionManagerHelper.SaveFactionFile(factionFile);
+
                 foreach (SiteIdendityFile site in SiteManagerHelper.GetAllSitesFromUsername(client.userFile.Username))
                 {
                     SiteManagerHelper.UpdateFaction(site, factionFile);
                 }
+                
                 Packet packet = Packet.CreatePacketFromObject(nameof(FactionManager), factionManifest);
                 client.listener.EnqueuePacket(packet);
 

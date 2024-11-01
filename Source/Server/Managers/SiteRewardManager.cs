@@ -6,5 +6,8 @@ using System.Threading.Tasks;
 
 namespace GameServer
 {
-    public static class RewardManager{}
+    public static class SiteRewardManager
+    {
+        
+    }
 }
