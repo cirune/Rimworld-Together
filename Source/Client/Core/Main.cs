@@ -25,8 +25,9 @@ namespace GameClient
                 PreparePaths();
                 CreateUnityDispatcher();
 
-                FactionValues.SetPlayerFactionDefs();
                 CaravanManagerHelper.SetCaravanDefs();
+                SiteManager.SetSiteDefs();
+                
                 PreferenceManager.LoadClientPreferences();
                 CompatibilityManager.LoadAllPatchedAssemblies();
             }

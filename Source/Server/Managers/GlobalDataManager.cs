@@ -75,11 +75,11 @@ namespace GameServer
 
         public static ServerGlobalData GetServerSites(ServerClient client, ServerGlobalData globalData)
         {
-            List<SiteFile> tempList = new List<SiteFile>();
-            SiteFile[] sites = SiteManagerHelper.GetAllSites();
-            foreach (SiteFile site in sites)
+            List<SiteIdendityFile> tempList = new List<SiteIdendityFile>();
+            SiteIdendityFile[] sites = SiteManagerHelper.GetAllSites();
+            foreach (SiteIdendityFile site in sites)
             {
-                SiteFile file = new SiteFile();
+                SiteIdendityFile file = new SiteIdendityFile();
 
                 file.Tile = site.Tile;
                 file.Owner = site.Owner;

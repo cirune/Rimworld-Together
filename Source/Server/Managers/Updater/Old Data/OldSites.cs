@@ -1,8 +1,7 @@
-﻿using System;
-using System.Threading;
+﻿using Shared;
 using static Shared.CommonEnumerators;
 
-namespace Shared
+namespace GameServer.Updater
 {
     [Serializable]
     public class SiteFile

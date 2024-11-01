@@ -21,6 +21,7 @@ namespace GameServer
 
             if (Master.discordConfig.Enabled) DiscordManager.StartDiscordIntegration();
             if (Master.backupConfig.AutomaticBackups) BackupManager.AutoBackup();
+            SiteManager.UpdateAllSiteInfo();
             Threader.GenerateServerThread(Threader.ServerMode.Start);
             Threader.GenerateServerThread(Threader.ServerMode.Console);
 
@@ -227,6 +228,7 @@ namespace GameServer
                     else
                     {
                         Master.siteValues = new SiteValuesFile();
+                        SiteManagerHelper.SetSitePresets();
                         Serializer.SerializeToFile(pathToLoad, Master.siteValues);
                     }
                     break;
