@@ -740,20 +740,18 @@ namespace GameServer
 
         private static void UpdateCommandAction() 
         {
-            //Make sure the user wants to update the server
-            Logger.Warning("Are you sure you want to reset the world? You should only do so if you are told to, as this may break things.");
+            Logger.Warning("Are you sure you want to run the update command? You should only do so if you are told to, as this may break things.");
             Logger.Warning("Please type 'YES' or 'NO'");
 
-            UpdateWorldQuestion:
+            UpdateCommandQuestion:
                 string response = Console.ReadLine();
 
                 if (response == "NO") return;
-                else if (response == "YES")
-                    GameServer.Updater.UpdateManager.UpdateServer();
+                else if (response == "YES") Updater.UpdateManager.UpdateServer();
                 else 
                 {
                     Logger.Error($"{response} is not a valid option; The options must be capitalized");
-                    goto UpdateWorldQuestion;
+                    goto UpdateCommandQuestion;
                 }
         }
     }

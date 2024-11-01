@@ -92,7 +92,7 @@ namespace GameClient
             Widgets.Label(new Rect(viewRightColumn.x, num, viewRightColumn.width, heightDesc), sitePartDef.description);
             num += heightDesc;
 
-            Widgets.Label(new Rect(viewRightColumn.x, num, viewRightColumn.width, 20f), $"Produces every {SiteManager.siteValues.TimeIntervalMinute.ToString()} minutes:");
+            Widgets.Label(new Rect(viewRightColumn.x, num, viewRightColumn.width, 20f), $"Produces every {SiteManager.siteValues.TimeIntervalMinutes.ToString()} minutes:");
             num += 20f;
             Text.Font = GameFont.Small;
             foreach (ThingDef thing in rewardThing.Keys)

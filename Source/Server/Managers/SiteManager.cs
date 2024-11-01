@@ -110,7 +110,7 @@ namespace GameServer
                 try { SiteRewardTick(); }
                 catch (Exception e) { Logger.Error($"Site tick failed, this should never happen. Exception > {e}"); }
 
-                await Task.Delay(TimeSpan.FromMinutes(Master.siteValues.TimeIntervalMinute));
+                await Task.Delay(TimeSpan.FromMinutes(Master.siteValues.TimeIntervalMinutes));
             }
         }
 

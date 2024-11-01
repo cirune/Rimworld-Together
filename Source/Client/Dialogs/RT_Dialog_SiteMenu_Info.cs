@@ -103,7 +103,7 @@ namespace GameClient
             }
 
             Text.Font = GameFont.Small;
-            Widgets.Label(new Rect(viewRightColumn.x, num, viewRightColumn.width, 20f), $"Produces every {SiteManager.siteValues.TimeIntervalMinute} minutes:");
+            Widgets.Label(new Rect(viewRightColumn.x, num, viewRightColumn.width, 20f), $"Produces every {SiteManager.siteValues.TimeIntervalMinutes} minutes:");
             num += 20f;
 
             foreach (ThingDef thing in rewardThing.Keys)
