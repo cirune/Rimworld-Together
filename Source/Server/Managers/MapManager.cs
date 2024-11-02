@@ -18,16 +18,19 @@ namespace GameServer
         {
             string savingDirectory = Path.Combine(Master.mapsPath, client.userFile.Username);
             if (!Directory.Exists(savingDirectory)) Directory.CreateDirectory(savingDirectory);
+
+            file.Owner = client.userFile.Username;
             Serializer.ObjectBytesToFile(Path.Combine(savingDirectory, file.Tile + fileExtension), file);
 
             Logger.Message($"[Save map] > {client.userFile.Username} > {file.Tile}");
         }
 
-        public static void DeleteMap(string path)
+        public static void DeleteMap(MapFile mapFile)
         {
-            File.Delete(path);
+            string filePath = Path.Combine(Master.mapsPath, mapFile.Owner, mapFile.Tile + fileExtension);
 
-            Logger.Warning($"[Remove map] > {Path.GetFileNameWithoutExtension(path)}");
+            File.Delete(filePath);
+            Logger.Warning($"[Remove map] > {Path.GetFileNameWithoutExtension(filePath)}");
         }
 
         public static string[] GetAllMaps()
@@ -42,9 +45,13 @@ namespace GameServer
             else return false;
         }
 
-        public static string[] GetAllMapsFromUsername(string username)
+        public static MapFile[] GetAllMapsFromUsername(string username)
         {
-            return Directory.GetFiles(Path.Combine(Master.mapsPath, username));
+            List<MapFile> allUserMaps = new List<MapFile>();
+            string[] allMapPaths = Directory.GetFiles(Path.Combine(Master.mapsPath, username));
+            foreach (string str in allMapPaths) allUserMaps.Add(Serializer.FileBytesToObject<MapFile>(str));
+
+            return allUserMaps.ToArray();
         }
 
         public static MapFile GetUserMapFromTile(string username, int mapTileToGet)

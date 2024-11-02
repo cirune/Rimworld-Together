@@ -139,30 +139,34 @@ namespace GameServer
 
             if (client != null) client.listener.disconnectFlag = true;
 
-            //Delete save file
+            // Delete save file
             try { File.Delete(Path.Combine(Master.savesPath, username + fileExtension)); }
             catch { Logger.Warning($"Failed to find {username}'s save"); }
 
-            //Delete map files
-            string[] userMaps = MapManager.GetAllMapsFromUsername(username);
-            foreach (string str in userMaps) MapManager.DeleteMap(str);
+            // Delete map files
+            MapFile[] userMaps = MapManager.GetAllMapsFromUsername(username);
+            foreach (MapFile map in userMaps) MapManager.DeleteMap(map);
 
-            //Delete site files
+            // Delete caravan files
+            CaravanFile[] userCaravans = CaravanManagerHelper.GetCaravansFromOwner(username);
+            foreach (CaravanFile caravan in userCaravans) CaravanManager.RemoveCaravan(username, caravan);
+
+            // Delete site files
             SiteIdendityFile[] playerSites = SiteManagerHelper.GetAllSitesFromUsername(username);
             foreach (SiteIdendityFile site in playerSites) SiteManager.DestroySiteFromFile(site);
 
-            //Delete settlement files
+            // Delete settlement files
             SettlementFile[] playerSettlements = PlayerSettlementManager.GetAllSettlementsFromUsername(username);
-            foreach (SettlementFile settlementFile in playerSettlements)
+            foreach (SettlementFile settlement in playerSettlements)
             {
                 PlayerSettlementData settlementData = new PlayerSettlementData();
-                settlementData._settlementData.Tile = settlementFile.Tile;
-                settlementData._settlementData.Owner = settlementFile.Owner;
+                settlementData._settlementData.Tile = settlement.Tile;
+                settlementData._settlementData.Owner = settlement.Owner;
 
                 PlayerSettlementManager.RemoveSettlement(client, settlementData);
             }
 
-            Logger.Warning($"[Reseted player data] > {username}");
+            Logger.Warning($"[Reset player data] > {username}");
         }
     }
 }
