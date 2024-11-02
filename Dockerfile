@@ -9,6 +9,7 @@ RUN dotnet publish Source/Server/GameServer.csproj -c Release -r linux-x64 --sel
 
 # Build runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
+LABEL org.opencontainers.image.source="https://github.com/cirune/RimWorld-Together"
 WORKDIR /App
 
 COPY --from=build-env /App/Source/Server/bin/Release/net8.0/linux-x64/publish/GameServer /App/Server/GameServer
