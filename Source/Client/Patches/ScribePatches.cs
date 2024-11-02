@@ -82,10 +82,9 @@ namespace GameClient
 
     //TODO
     //Find a way to handle scribe errors better than this
-    //For real
 
     [HarmonyPatch(typeof(PawnTextureAtlas), nameof(PawnTextureAtlas.GC))]
-    public static class PatchAtlas
+    public static class PatchPawnAtlas
     {
         [HarmonyPrefix]
         public static bool DoPre(ref Dictionary<Pawn, PawnTextureAtlasFrameSet> ___frameAssignments, ref List<Pawn> ___tmpPawnsToFree, ref List<PawnTextureAtlasFrameSet> ___freeFrameSets)
@@ -123,8 +122,56 @@ namespace GameClient
         }
     }
 
+    [HarmonyPatch(typeof(DebugLoadIDsSavingErrorsChecker), nameof(DebugLoadIDsSavingErrorsChecker.RegisterDeepSaved))]
+    public static class PatchRegisterDeepSaved
+    {
+        [HarmonyPrefix]
+        public static bool DoPre()
+        {
+            if (Network.state == ClientNetworkState.Disconnected) return true;
+            else return false;
+        }
+    }
+
+    [HarmonyPatch(typeof(DebugLoadIDsSavingErrorsChecker), nameof(DebugLoadIDsSavingErrorsChecker.CheckForErrorsAndClear))]
+    public static class PatchCheckForErrorsAndClear
+    {
+        [HarmonyPrefix]
+        public static bool DoPre(DebugLoadIDsSavingErrorsChecker __instance)
+        {
+            if (Network.state == ClientNetworkState.Disconnected) return true;
+            else
+            {
+                __instance.Clear();
+                return false;
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(LoadedObjectDirectory), nameof(LoadedObjectDirectory.RegisterLoaded))]
+    public static class PatchRegisterLoaded
+    {
+        [HarmonyPrefix]
+        public static bool DoPre(ILoadReferenceable reffable, ref Dictionary<string, ILoadReferenceable> ___allObjectsByLoadID, ref Dictionary<int, ILoadReferenceable> ___allThingsByThingID)
+        {
+            if (Network.state == ClientNetworkState.Disconnected) return true;
+            else
+            {
+                try { ___allObjectsByLoadID.Add(reffable.GetUniqueLoadID(), reffable); }
+                catch (Exception e) { Logger.Error(e.ToString(), LogImportanceMode.Extreme); }
+
+                if (reffable is not Thing thing) return false;
+
+                try { ___allThingsByThingID.Add(thing.thingIDNumber, reffable); }
+                catch (Exception e) { Logger.Error(e.ToString(), LogImportanceMode.Extreme); }
+                
+                return false;
+            }
+        }
+    }
+
     [HarmonyPatch(typeof(Log), nameof(Log.Warning))]
-    public static class PatchWarning
+    public static class PatchScribeWarning
     {
         [HarmonyPrefix]
         public static bool DoPre()
@@ -136,7 +183,7 @@ namespace GameClient
     }
 
     [HarmonyPatch(typeof(Log), nameof(Log.Error))]
-    public static class PatchError
+    public static class PatchScribeError
     {
         [HarmonyPrefix]
         public static bool DoPre()

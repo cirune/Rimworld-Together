@@ -120,7 +120,7 @@ namespace GameClient
             Action r1 = delegate 
             {
                 if (SessionValues.latestOfflineActivity == OfflineActivityType.Spy) SaveManager.ForceSave();
-                PrepareMapForOfflineActivity(Serializer.ConvertBytesToObject<MapFile>(offlineVisitData._compressedFile.Contents, false)); 
+                PrepareMapForOfflineActivity(offlineVisitData._mapFile); 
             };
 
             r1.Invoke();

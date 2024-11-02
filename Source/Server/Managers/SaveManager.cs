@@ -148,8 +148,8 @@ namespace GameServer
             foreach (string str in userMaps) MapManager.DeleteMap(str);
 
             //Delete site files
-            SiteFile[] playerSites = SiteManagerHelper.GetAllSitesFromUsername(username);
-            foreach (SiteFile site in playerSites) SiteManager.DestroySiteFromFile(site);
+            SiteIdendityFile[] playerSites = SiteManagerHelper.GetAllSitesFromUsername(username);
+            foreach (SiteIdendityFile site in playerSites) SiteManager.DestroySiteFromFile(site);
 
             //Delete settlement files
             SettlementFile[] playerSettlements = PlayerSettlementManager.GetAllSettlementsFromUsername(username);

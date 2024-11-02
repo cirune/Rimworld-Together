@@ -21,8 +21,6 @@ namespace GameClient
 
         public static string username;
 
-        public static string[] serverBrowserContainer = new string[] { "127.0.0.1|25555" };
-
         //ModStuff values go below. Do not change manually
 
         public static bool verboseBool;
